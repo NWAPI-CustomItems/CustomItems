@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <AssemblyName>NWAPI.CustomItems</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TargetFramework>net48</TargetFramework>
+        <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+        <IsPublishable>False</IsPublishable>
+        <Nullable>Enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <Optimize>False</Optimize>
+      <DebugType>portable</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <Optimize>True</Optimize>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <Import Project="../Cerberus.props" />
+
+    <ItemGroup>
+        <Compile Remove="Properties\**" />
+        <EmbeddedResource Remove="Properties\**" />
+        <None Remove="Properties\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="NWAPI.CustomItem.API" HintPath="$(SL_REFERENCES)\NWAPI.CustomItem.API.dll" Private="false" />
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_REFERENCES)\Assembly-CSharp-firstpass.dll" Private="false" />
+        <Reference Include="Assembly-CSharp" HintPath="$(SL_REFERENCES)\Assembly-CSharp-Publicized.dll" Private="false" />
+        <Reference Include="PluginAPI" HintPath="$(SL_REFERENCES)\PluginAPI.dll" Private="false" />
+        <Reference Include="CommandSystem.Core" HintPath="$(SL_REFERENCES)\CommandSystem.Core.dll" Private="false" />
+        <Reference Include="Mirror-Publicized" HintPath="$(SL_REFERENCES)\Mirror-Publicized.dll" Private="false" />
+        <Reference Include="System.Core" HintPath="$(SL_REFERENCES)\System.Core.dll" Private="false" />
+        <Reference Include="UnityEngine" HintPath="$(SL_REFERENCES)\UnityEngine.dll" Private="false" />
+        <Reference Include="NorthwoodLib" HintPath="$(SL_REFERENCES)\NorthwoodLib.dll" Private="false" />
+        <Reference Include="SchematicApi" HintPath="$(SL_REFERENCES)\SchematicApi.dll" Private="false" />
+        <Reference Include="SCPSLAudioApi" HintPath="$(SL_REFERENCES)\SCPSLAudioApi.dll" Private="false" />
+        <Reference Include="NWAPIPermissionSystem" HintPath="$(SL_REFERENCES)\NWAPIPermissionSystem.dll" Private="false" />
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(SL_REFERENCES)\UnityEngine.CoreModule.dll" Private="false" />
+        <Reference Include="UnityEngine.AudioModule" HintPath="$(SL_REFERENCES)\UnityEngine.AudioModule.dll" Private="false" />
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(SL_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
+        <Reference Include="UnityEngine.UnityWebRequestModule" HintPath="$(SL_REFERENCES)\UnityEngine.UnityWebRequestModule.dll" Private="false" />
+        <Reference Include="Pooling" HintPath="$(SL_REFERENCES)\Pooling.dll" Private="false" />
+    </ItemGroup>
+</Project>
