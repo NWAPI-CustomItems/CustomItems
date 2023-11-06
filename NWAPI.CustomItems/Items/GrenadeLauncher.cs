@@ -59,26 +59,28 @@ namespace CustomItems.Items
             {
                 new()
                 {
-                    Chance = 54,
-                    Location = NWAPI.CustomItems.API.Enums.SpawnLocationType.InsideHid
+                    Chance = 100,
+                    Location = NWAPI.CustomItems.API.Enums.SpawnLocationType.Inside914
                 }
             }
         };
 
         /// <inheritdoc/>
-        protected override void SubscribeEvents()
+        public override void SubscribeEvents()
         {
-            Instance ??= this;
-
-            PluginAPI.Events.EventManager.RegisterEvents(Plugin.Instance, Instance);
             base.SubscribeEvents();
+
+            Instance ??= this;
+            PluginAPI.Events.EventManager.RegisterEvents(Plugin.Instance, Instance);
+            
         }
 
         /// <inheritdoc/>
-        protected override void UnsubscribeEvents()
+        public override void UnsubscribeEvents()
         {
-            PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
             base.UnsubscribeEvents();
+            ClearCache();
+            PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
         }
 
         // Boop
@@ -89,10 +91,7 @@ namespace CustomItems.Items
         [PluginEvent]
         public void OnRoundEnd(RoundEndEvent _)
         {
-            LoadedGrenades.Clear();
-            WeaponsRealoding.Clear();
-            LoadedCustomGrenades.Clear();
-            GrenadesSerials.Clear();
+            ClearCache();
         }
 
         public override void OnPickedup(PlayerSearchedPickupEvent ev)
@@ -101,19 +100,22 @@ namespace CustomItems.Items
 
             if (!LoadedGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
+                Log.Info($" LoadedGrenades {LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial)}");
                 Queue<ProjectileType> queue = new();
 
                 for (int i = 0; i < ClipSize; i++)
                 {
                     queue.Enqueue(ProjectileType.FragGrenade);
                 }
+
                 LoadedGrenades.Add(ev.Item.NetworkInfo.Serial, queue);
             }
 
             if (!LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
-                Queue<ProjectileType> queue = new();
-                LoadedGrenades.Add(ev.Item.NetworkInfo.Serial, queue);
+                Log.Info($"LoadedCustomGrenades {LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial)}");
+                Queue<CustomGrenade> queue = new();
+                LoadedCustomGrenades.Add(ev.Item.NetworkInfo.Serial, queue);
             }
         }
 
@@ -204,6 +206,12 @@ namespace CustomItems.Items
                 return;
             }
 
+            if(LoadedCustomGrenades.TryGetValue(ev.Firearm.ItemSerial, out var customGrenadesQueue) && customGrenadesQueue.TryDequeue(out var customGrenade))
+            {
+                customGrenade?.Throw(ev.Player.Position, true, customGrenade.Weight, customGrenade.ModelType, ev.Player);
+                return;
+            }
+
             Log.Warning($"{Name}.{nameof(OnShoot)}: {ev.Player.Nickname} had a null grenade");
         }
 
@@ -223,6 +231,16 @@ namespace CustomItems.Items
             GrenadesSerials.Add(throwable.ItemSerial);
 
             player.ThrowItem(throwable, true);
+        }
+
+
+        private void ClearCache()
+        {
+            LoadedGrenades.Clear();
+            WeaponsRealoding.Clear();
+            LoadedCustomGrenades.Clear();
+            GrenadesSerials.Clear();
+            TrackedSerials.Clear();
         }
     }
 }

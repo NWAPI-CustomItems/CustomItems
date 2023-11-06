@@ -34,7 +34,6 @@ namespace CustomItems
 
             if (!Config.IsEnabled)
                 return;
-
             try
             {
                 CustomItem.RegisterItems();
