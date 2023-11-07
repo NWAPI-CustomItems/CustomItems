@@ -30,19 +30,19 @@ namespace CustomItems.Items
         public override uint Id { get; set; } = 1;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = "GL";
+        public override string Name { get; set; } = "Grenade Launcher";
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = "Shot grenades, your welcome.";
+        public override string Description { get; set; } = "Shot grenades and you need grenades to reloaded, all types of grenades can be used.";
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = 1f;
+        public override float Weight { get; set; } = 1.49f;
 
         /// <inheritdoc/>
         public override ItemType ModelType { get; set; } = ItemType.GunLogicer;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = 4;
+        public override byte ClipSize { get; set; } = 2;
 
         /// <inheritdoc/>
         public override uint AttachmentsCode { get; set; } = 5252;
@@ -60,7 +60,7 @@ namespace CustomItems.Items
                 new()
                 {
                     Chance = 100,
-                    Location = NWAPI.CustomItems.API.Enums.SpawnLocationType.Inside914
+                    Location = NWAPI.CustomItems.API.Enums.SpawnLocationType.Inside079Secondary
                 }
             }
         };
@@ -88,6 +88,47 @@ namespace CustomItems.Items
         private readonly Dictionary<uint, Queue<ProjectileType>> LoadedGrenades = new();
         private readonly HashSet<uint> WeaponsRealoding = new();
 
+        public override void Give(Player player, bool displayMessage = true)
+        {
+            var item = player.AddItem(ModelType);
+
+            if (item is not Firearm firearm)
+            {
+                Log.Debug($"{nameof(Give)}: {Name} - {ModelType} is not a firearm", Plugin.Instance.Config.DebugMode);
+
+                player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                return;
+            }
+
+            if (AttachmentsCode != 0)
+                firearm.ChangeAttachmentsCode(AttachmentsCode);
+
+            firearm.ChangeAmmo(ClipSize);
+
+            if (displayMessage)
+                ShowPickupMessage(player);
+
+            TrackedSerials.Add(item.ItemSerial);
+
+            if (!LoadedGrenades.ContainsKey(item.ItemSerial))
+            {
+                Queue<ProjectileType> queue = new();
+
+                for (int i = 0; i < ClipSize; i++)
+                {
+                    queue.Enqueue(ProjectileType.FragGrenade);
+                }
+
+                LoadedGrenades.Add(item.ItemSerial, queue);
+            }
+
+            if (!LoadedCustomGrenades.ContainsKey(item.ItemSerial))
+            {
+                Queue<CustomGrenade> queue = new();
+                LoadedCustomGrenades.Add(item.ItemSerial, queue);
+            }
+        }
+
         [PluginEvent]
         public void OnRoundEnd(RoundEndEvent _)
         {
@@ -100,7 +141,6 @@ namespace CustomItems.Items
 
             if (!LoadedGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
-                Log.Info($" LoadedGrenades {LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial)}");
                 Queue<ProjectileType> queue = new();
 
                 for (int i = 0; i < ClipSize; i++)
@@ -113,7 +153,6 @@ namespace CustomItems.Items
 
             if (!LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
-                Log.Info($"LoadedCustomGrenades {LoadedCustomGrenades.ContainsKey(ev.Item.NetworkInfo.Serial)}");
                 Queue<CustomGrenade> queue = new();
                 LoadedCustomGrenades.Add(ev.Item.NetworkInfo.Serial, queue);
             }

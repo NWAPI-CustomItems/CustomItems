@@ -1,41 +1,42 @@
-﻿using CustomItems.Items;
-using CustomPlayerEffects;
+﻿using CustomPlayerEffects;
 using NWAPI.CustomItems.API.Enums;
-using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
 using PlayerRoles.PlayableScps.Scp096;
-using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
+using PluginAPI.Core;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static PlayerList;
+using NWAPI.CustomItems.API.Extensions.ScpRoles;
+using NWAPI.CustomItems.API.Extensions;
+using PlayerStatsSystem;
+using System.Xml.Linq;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
-    public class AntiMemeticPills : CustomItem
+    public class LethalInjection : CustomItem
     {
-        public static AntiMemeticPills Instance;
+        public static LethalInjection Instance;
 
         /// <inheritdoc />
-        public override uint Id { get; set; } = 2;
+        public override uint Id { get; set; } = 4;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = "Anti-Memetic pills";
+        public override string Name { get; set; } = "Lethal injection";
 
         /// <inheritdoc />
-        public override string Description { get; set; } = "Pills that make you forget the face of SCP-096";
+        public override string Description { get; set; } = "Anomalous injection that when applied to your body will instantly decompose but will cause the SCP-096 which you were the target to calm down.";
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = 0.2f;
+        public override float Weight { get; set; } = 5f;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = ItemType.Painkillers;
+        public override ItemType ModelType { get; set; } = ItemType.Adrenaline;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -46,29 +47,19 @@ namespace NWAPI.CustomItems.Items
                 new()
                 {
                     Chance = 100,
-                    Location = SpawnLocationType.Inside096
-                },
-                new()
-                {
-                    Chance = 80,
-                    Location = SpawnLocationType.InsideLczWc
-                },
-                new()
-                {
-                    Chance = 40,
-                    Location = SpawnLocationType.Inside330
-                },
-                new()
-                {
-                    Chance = 50,
-                    Location = SpawnLocationType.InsideLczCafe
+                    Location = SpawnLocationType.Inside096,
                 },
                 new()
                 {
                     Chance = 30,
-                    Location = SpawnLocationType.InsideGr18
+                    Location = SpawnLocationType.InsideIntercom
+                },
+                new()
+                {
+                    Chance = 50,
+                    Location = SpawnLocationType.InsideSurfaceNuke
                 }
-            }
+            },
         };
 
         /// <inheritdoc/>
@@ -94,16 +85,16 @@ namespace NWAPI.CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
-            foreach(var player in Player.GetPlayers())
+            foreach (var player in Player.GetPlayers())
             {
-                if (player.Role != PlayerRoles.RoleTypeId.Scp096 || player.RoleBase is not Scp096Role role)
+                if (player.Role != PlayerRoles.RoleTypeId.Scp096 || player.RoleBase is not Scp096Role role || !role.HasTarget(ev.Player))
                     continue;
 
-                role.RemoveTarget(ev.Player);
+                role.EndRage();
             }
 
-            ev.Player.EffectsManager.EnableEffect<AmnesiaVision>(30, true);
-            ev.Player.EffectsManager.EnableEffect<AmnesiaItems>(10, true);
+            ev.Player.Kill(new UniversalDamageHandler(-1, DeathTranslations.Poisoned));
+            ev.Player.SendConsoleMessage($" You were killed by the custom item {Name}");
         }
     }
 }
