@@ -15,6 +15,7 @@ using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Extensions;
 using PlayerStatsSystem;
 using System.Xml.Linq;
+using CustomItems;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -27,16 +28,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 4;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = "Lethal injection";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Name;
 
         /// <inheritdoc />
-        public override string Description { get; set; } = "Anomalous injection that when applied to your body will instantly decompose but will cause the SCP-096 which you were the target to calm down.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Description;
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = 5f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Weight;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = ItemType.Adrenaline;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.ModelType;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -69,7 +70,6 @@ namespace NWAPI.CustomItems.Items
 
             Instance ??= this;
             PluginAPI.Events.EventManager.RegisterEvents(Plugin.Instance, Instance);
-
         }
 
         /// <inheritdoc/>

@@ -19,6 +19,7 @@ using MEC;
 using System.Data;
 using InventorySystem.Items.Usables;
 using UnityEngine;
+using CustomItems;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -31,16 +32,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 7;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = "Mimic hat";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Name;
 
         /// <inheritdoc />
-        public override string Description { get; set; } = "Wearing this hat will change your appearance to that of a random live SCP for a period of time.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Description;
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = 0.1f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Weight;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = ItemType.SCP268;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.ModelType;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -50,15 +51,15 @@ namespace NWAPI.CustomItems.Items
             {
                 new()
                 {
-                    Chance = 100,
-                    Location = SpawnLocationType.Inside330Chamber,
+                    Chance = 60,
+                    Location = SpawnLocationType.InsideNukeArmory,
                 },
             }
         };
 
-        public float Duration { get; set; } = 15f;
+        public float Duration { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Duration;
 
-        public float Cooldown { get; set; } = 40f;
+        public float Cooldown { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Cooldown;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()

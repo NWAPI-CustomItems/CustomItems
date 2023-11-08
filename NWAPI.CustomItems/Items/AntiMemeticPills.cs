@@ -1,4 +1,5 @@
-﻿using CustomItems.Items;
+﻿using CustomItems;
+using CustomItems.Items;
 using CustomPlayerEffects;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
@@ -26,16 +27,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 2;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = "Anti-Memetic pills";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Name;
 
         /// <inheritdoc />
-        public override string Description { get; set; } = "Pills that make you forget the face of SCP-096";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Description;
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = 0.2f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Weight;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = ItemType.Painkillers;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.ModelType;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()

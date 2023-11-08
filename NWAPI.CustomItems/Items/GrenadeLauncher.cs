@@ -24,33 +24,30 @@ namespace CustomItems.Items
         public static GrenadeLauncher Instance;
 
         /// <inheritdoc/>
-        public override float Damage { get; set; } = 0;
+        public override float Damage { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Damage;
 
         /// <inheritdoc/>
         public override uint Id { get; set; } = 1;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = "Grenade Launcher";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Name;
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = "Shot grenades and you need grenades to reloaded, all types of grenades can be used.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Description;
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = 1.49f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Weight;
 
         /// <inheritdoc/>
-        public override ItemType ModelType { get; set; } = ItemType.GunLogicer;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.ModelType;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = 2;
+        public override byte ClipSize { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.ClipSize;
 
         /// <inheritdoc/>
-        public override uint AttachmentsCode { get; set; } = 5252;
+        public override uint AttachmentsCode { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.AttachmentsCode;
 
-        public bool IgnoreCustomGrenade { get; set; } = true;
-
-
-        public static HashSet<ushort> GrenadesSerials = new();
+        public bool IgnoreCustomGrenade { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.IgnoreCustomGrenade;
 
         /// <inheritdoc/>
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -71,7 +68,7 @@ namespace CustomItems.Items
             base.SubscribeEvents();
 
             Instance ??= this;
-            PluginAPI.Events.EventManager.RegisterEvents(Plugin.Instance, Instance);
+            PluginAPI.Events.EventManager.RegisterEvents(EntryPoint.Instance, Instance);
             
         }
 
@@ -80,7 +77,7 @@ namespace CustomItems.Items
         {
             base.UnsubscribeEvents();
             ClearCache();
-            PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
+            PluginAPI.Events.EventManager.UnregisterEvents(EntryPoint.Instance, Instance);
         }
 
         // Boop
@@ -88,13 +85,18 @@ namespace CustomItems.Items
         private readonly Dictionary<uint, Queue<ProjectileType>> LoadedGrenades = new();
         private readonly HashSet<uint> WeaponsRealoding = new();
 
+        /// <summary>
+        /// Gets all grenades serials spawned by the grenade launcher.
+        /// </summary>
+        public static HashSet<ushort> GrenadesSerials = new();
+
         public override void Give(Player player, bool displayMessage = true)
         {
             var item = player.AddItem(ModelType);
 
             if (item is not Firearm firearm)
             {
-                Log.Debug($"{nameof(Give)}: {Name} - {ModelType} is not a firearm", Plugin.Instance.Config.DebugMode);
+                Log.Debug($"{nameof(Give)}: {Name} - {ModelType} is not a firearm", EntryPoint.Instance.Config.DebugMode);
 
                 player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
                 return;
@@ -138,6 +140,9 @@ namespace CustomItems.Items
         public override void OnPickedup(PlayerSearchedPickupEvent ev)
         {
             base.OnPickedup(ev);
+
+            if (!Check(ev.Item))
+                return;
 
             if (!LoadedGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
@@ -221,7 +226,7 @@ namespace CustomItems.Items
                 };
                 LoadedGrenades[ev.Firearm.ItemSerial].Enqueue(type);
                 Log.Debug($"{Name}.{nameof(OnReloading)}: {ev.Player.Nickname} successfully reloaded. Grenade type: {type} IsCustom: {isCustomGrenade}",
-                Plugin.Instance.Config.DebugMode);
+                EntryPoint.Instance.Config.DebugMode);
 
                 ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
                 break;

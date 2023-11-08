@@ -21,6 +21,7 @@ using NorthwoodLib.Pools;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using Interactables.Interobjects;
 using PluginAPI.Core.Attributes;
+using CustomItems;
 
 // -----------------------------------------------------------------------
 // <copyright file="TranquilizerGun.cs" company="Joker119">
@@ -37,28 +38,28 @@ namespace NWAPI.CustomItems.Items
         public static TranquilizerGun Instance;
 
         /// <inheritdoc/>
-        public override float Damage { get; set; } = 5;
+        public override float Damage { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Damage;
 
         /// <inheritdoc/>
         public override uint Id { get; set; } = 6;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = "Tranquilizer gun";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Name;
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = "A USP modified to fire tranquilizer darts, very effective against humans but not very effective against SCPs.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Description;
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = 6f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Weight;
 
         /// <inheritdoc/>
-        public override ItemType ModelType { get; set; } = ItemType.GunCOM18;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ModelType;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = 1;
+        public override byte ClipSize { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ClipSize;
 
         /// <inheritdoc/>
-        public override uint AttachmentsCode { get; set; } = 1170;
+        public override uint AttachmentsCode { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.AttachmentsCode;
 
         /// <inheritdoc/>
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -83,22 +84,22 @@ namespace NWAPI.CustomItems.Items
         /// <summary>
         /// Gets or sets the percent chance an SCP will resist being tranquilized. This has no effect if ResistantScps is false.
         /// </summary>
-        public int ScpResistChance { get; set; } = 65;
+        public int ScpResistChance { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ScpResistChance;
 
         /// <summary>
         /// Gets or sets the amount of time a successful tranquilization lasts for.
         /// </summary>
-        public float Duration { get; set; } = 5f;
+        public float Duration { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Duration;
 
         /// <summary>
         /// Gets or sets the exponential modifier used to determine how much time is removed from the effect, everytime a player is tranquilized, they gain a resistance to further tranquilizations, reducing the duration of future effects.
         /// </summary>
-        public float ResistanceModifier { get; set; } = 1.1f;
+        public float ResistanceModifier { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ResistanceModifier;
 
         /// <summary>
         /// Gets or sets a value indicating how often player resistances are reduced.
         /// </summary>
-        public float ResistanceFalloffDelay { get; set; } = 60f;
+        public float ResistanceFalloffDelay { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ResistanceFalloffDelay;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -122,54 +123,31 @@ namespace NWAPI.CustomItems.Items
         private readonly List<Player> activeTranqs = new();
         private CoroutineHandle resistenceReducer;
 
-        //testing
-        [PluginEvent]
-        public void OnPlayerShoot(PlayerShotWeaponEvent ev)
-        {
-            if (!Check(ev.Firearm))
-                return;
-
-            if (ev.Player.Team == Team.SCPs)
-            {
-                int r = UnityEngine.Random.Range(0, 100);
-                Log.Debug($"{Name}: SCP roll: {r} (must be greater than {ScpResistChance})");
-                if (r <= ScpResistChance)
-                {
-                    Log.Debug($"{Name}: {r} is too low, no tranq.");
-                    return;
-                }
-            }
-
-            float duration = Duration;
-
-            if (!tranquilizedPlayers.TryGetValue(ev.Player, out _))
-                tranquilizedPlayers.Add(ev.Player, 1);
-
-            tranquilizedPlayers[ev.Player] *= ResistanceModifier;
-            Log.Debug($"{Name}: Resistance Duration Mod: {tranquilizedPlayers[ev.Player]}", Plugin.Instance.Config.DebugMode);
-
-            duration -= tranquilizedPlayers[ev.Player];
-            Log.Debug($"{Name}: Duration: {duration}", Plugin.Instance.Config.DebugMode);
-
-            if (duration > 0f)
-                Timing.RunCoroutine(DoTranquilize(ev.Player, duration));
-        }
-
         /// <inheritdoc />
         protected override void OnHurting(PlayerDamageEvent ev)
         {
-            base.OnHurting(ev);
-
-            if (ev.Player == ev.Target)
+            if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem))
                 return;
+
+            if (ev.DamageHandler is FirearmDamageHandler dmg)
+            {
+                if (!FriendlyFire && ev.Target.Team == ev.Player.Team)
+                {
+                    dmg.Damage = 0;
+                }
+                else
+                {
+                    dmg.Damage = Damage;
+                }
+            }
 
             if (ev.Target.Team == Team.SCPs)
             {
                 int r = UnityEngine.Random.Range(0, 100);
-                Log.Debug($"{Name}: SCP roll: {r} (must be greater than {ScpResistChance})");
+                Log.Debug($"{Name}: SCP roll: {r} (must be greater than {ScpResistChance})", EntryPoint.Instance.Config.DebugMode);
                 if (r <= ScpResistChance)
                 {
-                    Log.Debug($"{Name}: {r} is too low, no tranq.");
+                    Log.Debug($"{Name}: {r} is too low, no tranq.", EntryPoint.Instance.Config.DebugMode);
                     return;
                 }
             }
@@ -180,10 +158,10 @@ namespace NWAPI.CustomItems.Items
                 tranquilizedPlayers.Add(ev.Target, 1);
 
             tranquilizedPlayers[ev.Target] *= ResistanceModifier;
-            Log.Debug($"{Name}: Resistance Duration Mod: {tranquilizedPlayers[ev.Target]}", Plugin.Instance.Config.DebugMode);
+            Log.Debug($"{Name}: Resistance Duration Mod: {tranquilizedPlayers[ev.Target]}", EntryPoint.Instance.Config.DebugMode);
 
             duration -= tranquilizedPlayers[ev.Target];
-            Log.Debug($"{Name}: Duration: {duration}", Plugin.Instance.Config.DebugMode);
+            Log.Debug($"{Name}: Duration: {duration}", EntryPoint.Instance.Config.DebugMode);
 
             if (duration > 0f)
                 Timing.RunCoroutine(DoTranquilize(ev.Target, duration));

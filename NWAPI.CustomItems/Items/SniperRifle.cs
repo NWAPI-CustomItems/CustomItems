@@ -1,4 +1,5 @@
-﻿using CustomItems.Items;
+﻿using CustomItems;
+using CustomItems.Items;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Features.Attributes;
@@ -19,28 +20,28 @@ namespace NWAPI.CustomItems.Items
         public static SniperRifle Instance;
 
         /// <inheritdoc/>
-        public override float Damage { get; set; } = 30;
+        public override float Damage { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.Damage;
 
         /// <inheritdoc/>
         public override uint Id { get; set; } = 5;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = "Sniper Rifle";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.Name;
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = "An E-11 modified to function as a Sniper.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.Description;
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = 6f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.Weight;
 
         /// <inheritdoc/>
-        public override ItemType ModelType { get; set; } = ItemType.GunE11SR;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.ModelType;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = 2;
+        public override byte ClipSize { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.ClipSize;
 
         /// <inheritdoc/>
-        public override uint AttachmentsCode { get; set; } = 19146000;
+        public override uint AttachmentsCode { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.AttachmentsCode;
 
         /// <inheritdoc/>
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -65,12 +66,12 @@ namespace NWAPI.CustomItems.Items
         /// <summary>
         /// Gets or sets the amount of damage multiplier for Humans.
         /// </summary>
-        public float DamageMultiplier { get; set; } = 3.1f;
+        public float DamageMultiplier { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.DamageMultiplier;
 
         /// <summary>
         /// Gets or sets the amount of damage multiplier for Scps.
         /// </summary>
-        public float DamageMultiplierToScps { get; set; } = 8.2f;
+        public float DamageMultiplierToScps { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.SniperRifle.DamageMultiplierToScps;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -91,7 +92,7 @@ namespace NWAPI.CustomItems.Items
 
         protected override void OnHurting(PlayerDamageEvent ev)
         {
-            if (!Check(ev.Player.CurrentItem) || ev.Target is null || !ev.Target.IsReady)
+            if (ev.Player is null || !ev.Player.IsReady || !Check(ev.Player.CurrentItem) || ev.Target is null || !ev.Target.IsReady)
                 return;
 
             if (ev.DamageHandler is FirearmDamageHandler dmg)

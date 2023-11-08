@@ -1,4 +1,5 @@
-﻿using CustomPlayerEffects;
+﻿using CustomItems;
+using CustomPlayerEffects;
 using LightContainmentZoneDecontamination;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
@@ -29,21 +30,21 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 3;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = "Escape coin";
+        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Name;
 
         /// <inheritdoc />
-        public override string Description { get; set; } = "Flipping this coin in the pocket dimension will you have the chance to exit at once or die instantly.";
+        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Description;
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = 0.1f;
+        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Weight;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = ItemType.Coin;
+        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.ModelType;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
         {
-            Limit = 5,
+            Limit = 3,
             DynamicSpawnPoints = new()
             {
                 new()
@@ -82,23 +83,16 @@ namespace NWAPI.CustomItems.Items
                 var coin = ev.Player.CurrentItem;
                 Timing.CallDelayed(3, () =>
                 {
-                    if (ev.IsTails)
+                    if (ev.Player.IsAlive && ev.Player.RoleBase is IFpcRole role)
                     {
-                        if(ev.Player.IsAlive && ev.Player.RoleBase is IFpcRole role)
-                        {
-                            var position = Scp106PocketExitFinder.GetBestExitPosition(role);
-                            ev.Player.EffectsManager.DisableEffect<PocketCorroding>();
-                            ev.Player.EffectsManager.DisableEffect<Corroding>();
-                            ev.Player.EffectsManager.EnableEffect<Traumatized>(40);
+                        var position = Scp106PocketExitFinder.GetBestExitPosition(role);
+                        ev.Player.EffectsManager.DisableEffect<PocketCorroding>();
+                        ev.Player.EffectsManager.DisableEffect<Corroding>();
+                        ev.Player.EffectsManager.EnableEffect<Traumatized>(40);
 
-                            TrackedSerials.Remove(coin.ItemSerial);
-                            ev.Player.RemoveItemFix(coin);
-                            SpawnCoin();
-                        }
-                    }
-                    else
-                    {
-                        ev.Player.Kill($"{Name}");
+                        TrackedSerials.Remove(coin.ItemSerial);
+                        ev.Player.RemoveItemFix(coin);
+                        SpawnCoin();
                     }
                 });
             }

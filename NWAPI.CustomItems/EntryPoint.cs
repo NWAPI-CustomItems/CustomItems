@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace CustomItems
 {
-    public class Plugin
+    public class EntryPoint
     {
         /// <summary>
         /// Gets the singleton instance of the plugin.
         /// </summary>
-        public static Plugin Instance { get; private set; } = null!;
+        public static EntryPoint Instance { get; private set; } = null!;
 
         /// <summary>
         /// Plugin config.
