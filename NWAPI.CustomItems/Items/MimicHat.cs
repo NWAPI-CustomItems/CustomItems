@@ -10,6 +10,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
@@ -49,9 +50,19 @@ namespace NWAPI.CustomItems.Items
             }
         };
 
+        [Description("Disguise duration")]
         public float Duration { get; set; } = 15f;
 
+        [Description("Cooldown after using the custom item the cooldown is calculated with (duration + cooldown)")]
         public float Cooldown { get; set; } = 40f;
+
+        [Description("Hint that will appear on a player's face when changing appearance. {0} is the appearance the player took (roletype).")]
+        public string AppearanceChange { get; set; } = "Your appearance changed to that of {0}";
+
+        [Description("Hint that will appear when the player's appearance returns to normal.")]
+        public string AppearanceRestore { get; set; } = "Your appearance is back to normal.";
+
+        public float HintDuration { get; set; } = 5f;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -98,7 +109,7 @@ namespace NWAPI.CustomItems.Items
                     ev.Player.EffectsManager.DisableEffect<Invisible>();
 
                     ev.Player.ChangeAppearance(role, true);
-                    ev.Player.ReceiveHint($"Your appearance changed to that of {role}");
+                    ev.Player.ReceiveHint(string.Format(AppearanceChange, role), HintDuration);
 
                     Timing.RunCoroutine(RestoreSkin(ev.Player, 15));
                 }
@@ -116,7 +127,7 @@ namespace NWAPI.CustomItems.Items
                     // Sets hat cooldown.
                     UsableItemsController.GetHandler(ev.Player.ReferenceHub).PersonalCooldowns[ev.Item.ItemTypeId] = Time.timeSinceLevelLoad + Duration + Cooldown;
 
-                    ev.Player.ReceiveHint($"Your appearance changed to that of {role}");
+                    ev.Player.ReceiveHint(string.Format(AppearanceChange, role), HintDuration);
                     Timing.RunCoroutine(RestoreSkin(ev.Player, 15));
                 }
             });
@@ -130,13 +141,13 @@ namespace NWAPI.CustomItems.Items
             if (!Round.IsRoundStarted && Round.Duration.TotalSeconds > 0)
                 yield break;
 
-            if (player != null && player.IsAlive && _oldRoles.TryGetValue(player.UserId, out var role))
+            if (player != null && player.IsReady && player.IsAlive && _oldRoles.TryGetValue(player.UserId, out var role))
             {
                 player.ChangeAppearance(role, false);
 
                 _oldRoles.Remove(player.UserId);
 
-                player.ReceiveHint($" Your appearance is back to normal.");
+                player.ReceiveHint(AppearanceRestore, HintDuration);
             }
         }
     }
