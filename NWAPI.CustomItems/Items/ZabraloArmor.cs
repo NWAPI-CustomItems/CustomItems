@@ -76,25 +76,5 @@ namespace NWAPI.CustomItems.Items
             base.UnsubscribeEvents();
             PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
         }
-
-        [PluginEvent]
-        public void OnTest(PlayerPickupArmorEvent ev)
-        {
-            var serial = ev.Item.NetworkInfo.Serial;
-
-            Timing.CallDelayed(1, () =>
-            {
-                foreach (var item in ev.Player.Items.ToList())
-                {
-                    if (item.ItemSerial != serial)
-                        continue;
-
-                    if (item is BodyArmor armor)
-                    {
-                        Log.Info($"Armor {armor.StaminaModifierActive} | {armor.StaminaRegenMultiplier} | {armor.StaminaUsageMultiplier} | {armor.SprintingDisabled} | {armor.Weight} | {armor.HelmetEfficacy} | {armor.VestEfficacy}");
-                    }
-                }
-            });
-        }
     }
 }

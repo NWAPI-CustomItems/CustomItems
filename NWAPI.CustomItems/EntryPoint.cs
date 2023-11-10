@@ -29,7 +29,7 @@ namespace CustomItems
         /// <summary>
         /// Gets the plugin version.
         /// </summary>
-        public const string Version = "0.0.1";
+        public const string Version = "1.0.0";
 
         /// <summary>
         /// Gets the Harmony instance used for patching and unpatching.
@@ -41,7 +41,7 @@ namespace CustomItems
         /// </summary>
         private static string HarmonyId = "";
 
-        [PluginEntryPoint("NWAPI.CustomItems", Version, "Boop", "SrLicht")]
+        [PluginEntryPoint("NWAPI.CustomItems", Version, "This containing custom items for NWAPI", "SrLicht")]
         private void OnLoad()
         {
             Instance = this;
