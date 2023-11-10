@@ -1,6 +1,4 @@
-﻿using CustomItems;
-using CustomItems.Items;
-using CustomPlayerEffects;
+﻿using CustomPlayerEffects;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
@@ -9,12 +7,6 @@ using PlayerRoles.PlayableScps.Scp096;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static PlayerList;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -27,16 +19,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 2;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Name;
+        public override string Name { get; set; } = "Anti-Memetic pills";
 
         /// <inheritdoc />
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Description;
+        public override string Description { get; set; } = "Pills that make you forget the face of SCP-096";
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.Weight;
+        public override float Weight { get; set; } = 0.2f;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.AntiMemeticPills.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.Painkillers;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -95,7 +87,7 @@ namespace NWAPI.CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
-            foreach(var player in Player.GetPlayers())
+            foreach (var player in Player.GetPlayers())
             {
                 if (player.Role != PlayerRoles.RoleTypeId.Scp096 || player.RoleBase is not Scp096Role role)
                     continue;

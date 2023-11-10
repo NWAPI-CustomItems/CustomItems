@@ -1,5 +1,4 @@
-﻿using CustomItems;
-using CustomPlayerEffects;
+﻿using CustomPlayerEffects;
 using LightContainmentZoneDecontamination;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
@@ -12,11 +11,6 @@ using PlayerRoles.PlayableScps.Scp106;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NWAPI.CustomItems.Items
@@ -30,16 +24,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 3;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Name;
+        public override string Name { get; set; } = "Escape coin";
 
         /// <inheritdoc />
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Description;
+        public override string Description { get; set; } = "Flipping this coin in the pocket dimension it will take you out of the pocket dimension and consume the coin and appear somewhere in the facility.";
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.Weight;
+        public override float Weight { get; set; } = 0.1f;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.EscapeCoin.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.Coin;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -47,6 +41,16 @@ namespace NWAPI.CustomItems.Items
             Limit = 3,
             DynamicSpawnPoints = new()
             {
+                new()
+                {
+                    Chance = 100,
+                    Location = SpawnLocationType.InsideLocker
+                },
+                new()
+                {
+                    Chance = 100,
+                    Location = SpawnLocationType.InsideLocker
+                },
                 new()
                 {
                     Chance = 100,
@@ -77,8 +81,8 @@ namespace NWAPI.CustomItems.Items
         {
             if (!Check(ev.Player.CurrentItem))
                 return;
-            
-            if(ev.Player.EffectsManager.TryGetEffect<PocketCorroding>(out var pocketCorroding) && pocketCorroding.IsEnabled)
+
+            if (ev.Player.EffectsManager.TryGetEffect<PocketCorroding>(out var pocketCorroding) && pocketCorroding.IsEnabled)
             {
                 var coin = ev.Player.CurrentItem;
                 Timing.CallDelayed(3, () =>

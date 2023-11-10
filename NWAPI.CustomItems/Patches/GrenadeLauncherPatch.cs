@@ -2,11 +2,6 @@
 using HarmonyLib;
 using InventorySystem.Items.ThrowableProjectiles;
 using NWAPI.CustomItems.API.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NWAPI.CustomItems.Patches
 {

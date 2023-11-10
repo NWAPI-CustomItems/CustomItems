@@ -13,6 +13,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CustomItems.Items
@@ -24,30 +25,33 @@ namespace CustomItems.Items
         public static GrenadeLauncher Instance;
 
         /// <inheritdoc/>
-        public override float Damage { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Damage;
+        [Description("Damage of the bullets, grenade damage its the same")]
+        public override float Damage { get; set; } = 0;
 
         /// <inheritdoc/>
         public override uint Id { get; set; } = 1;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Name;
+        public override string Name { get; set; } = "Grenade Launcher";
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Description;
+        public override string Description { get; set; } = "Shot grenades and you need grenades to reloaded, all types of grenades can be used.";
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.Weight;
+        public override float Weight { get; set; } = 1.49f;
 
         /// <inheritdoc/>
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.GunLogicer;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.ClipSize;
+        public override byte ClipSize { get; set; } = 2;
 
         /// <inheritdoc/>
-        public override uint AttachmentsCode { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.AttachmentsCode;
+        public override uint AttachmentsCode { get; set; } = 5252;
 
-        public bool IgnoreCustomGrenade { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.GrenadeLauncher.IgnoreCustomGrenade;
+
+        [Description("The grenade launchers cant use custom grenades")]
+        public bool IgnoreCustomGrenade { get; set; } = true;
 
         /// <inheritdoc/>
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -69,7 +73,7 @@ namespace CustomItems.Items
 
             Instance ??= this;
             PluginAPI.Events.EventManager.RegisterEvents(EntryPoint.Instance, Instance);
-            
+
         }
 
         /// <inheritdoc/>
@@ -173,7 +177,7 @@ namespace CustomItems.Items
 
             bool isCustomGrenade = false;
 
-            foreach(var item in ev.Player.Items.ToList())
+            foreach (var item in ev.Player.Items.ToList())
             {
                 if (!item.ItemTypeId.IsThrowable())
                     continue;
@@ -183,7 +187,7 @@ namespace CustomItems.Items
                     if (IgnoreCustomGrenade)
                         continue;
 
-                    if(customItem is CustomGrenade customGrenade)
+                    if (customItem is CustomGrenade customGrenade)
                     {
                         LoadedCustomGrenades[ev.Firearm.ItemSerial].Enqueue(customGrenade);
                         isCustomGrenade = true;
@@ -250,7 +254,7 @@ namespace CustomItems.Items
                 return;
             }
 
-            if(LoadedCustomGrenades.TryGetValue(ev.Firearm.ItemSerial, out var customGrenadesQueue) && customGrenadesQueue.TryDequeue(out var customGrenade))
+            if (LoadedCustomGrenades.TryGetValue(ev.Firearm.ItemSerial, out var customGrenadesQueue) && customGrenadesQueue.TryDequeue(out var customGrenade))
             {
                 customGrenade?.Throw(ev.Player.Position, true, customGrenade.Weight, customGrenade.ModelType, ev.Player);
                 return;

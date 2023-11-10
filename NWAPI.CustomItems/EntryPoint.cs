@@ -1,12 +1,9 @@
 ﻿using HarmonyLib;
 using NWAPI.CustomItems.API.Features;
+using NWAPI.CustomItems.API.Features.Attributes;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomItems
 {
@@ -22,6 +19,12 @@ namespace CustomItems
         /// </summary>
         [PluginConfig]
         public Config Config = null!;
+
+        /// <summary>
+        /// Custom items config class.
+        /// </summary>
+        [CustomItemConfig]
+        public CustomItemConfigs CustomItems = null!;
 
         /// <summary>
         /// Gets the plugin version.

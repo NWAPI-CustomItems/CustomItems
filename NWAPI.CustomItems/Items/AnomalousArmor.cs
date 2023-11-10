@@ -1,12 +1,7 @@
 ﻿using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace NWAPI.CustomItems.Items
 {

@@ -1,21 +1,13 @@
-﻿using CustomPlayerEffects;
-using NWAPI.CustomItems.API.Enums;
+﻿using NWAPI.CustomItems.API.Enums;
+using NWAPI.CustomItems.API.Extensions;
+using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
 using PlayerRoles.PlayableScps.Scp096;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Core;
-using PluginAPI.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NWAPI.CustomItems.API.Extensions.ScpRoles;
-using NWAPI.CustomItems.API.Extensions;
 using PlayerStatsSystem;
-using System.Xml.Linq;
-using CustomItems;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Events;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -28,16 +20,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 4;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Name;
+        public override string Name { get; set; } = "Lethal injection";
 
         /// <inheritdoc />
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Description;
+        public override string Description { get; set; } = "Anomalous injection that when applied to your body will instantly decompose but will cause the SCP-096 which you were the target to calm down.";
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.Weight;
+        public override float Weight { get; set; } = 0.3f;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.LethalInjection.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.Adrenaline;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()

@@ -1,7 +1,11 @@
-﻿using CustomPlayerEffects;
+﻿using CustomItems;
+using CustomPlayerEffects;
+using Interactables.Interobjects;
 using MEC;
+using NorthwoodLib.Pools;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
+using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
 using PlayerRoles;
@@ -12,16 +16,8 @@ using PluginAPI.Core;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Respawning.RespawnEffectsController;
+using System.ComponentModel;
 using UnityEngine;
-using NorthwoodLib.Pools;
-using NWAPI.CustomItems.API.Extensions.ScpRoles;
-using Interactables.Interobjects;
-using PluginAPI.Core.Attributes;
-using CustomItems;
 
 // -----------------------------------------------------------------------
 // <copyright file="TranquilizerGun.cs" company="Joker119">
@@ -38,28 +34,28 @@ namespace NWAPI.CustomItems.Items
         public static TranquilizerGun Instance;
 
         /// <inheritdoc/>
-        public override float Damage { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Damage;
+        public override float Damage { get; set; } = 5f;
 
         /// <inheritdoc/>
         public override uint Id { get; set; } = 6;
 
         /// <inheritdoc/>
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Name;
+        public override string Name { get; set; } = "Tranquilizer gun";
 
         /// <inheritdoc/>
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Description;
+        public override string Description { get; set; } = "A USP modified to fire tranquilizer darts, very effective against humans but not very effective against SCPs.";
 
         /// <inheritdoc/>
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Weight;
+        public override float Weight { get; set; } = 3f;
 
         /// <inheritdoc/>
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.GunCOM18;
 
         /// <inheritdoc/>
-        public override byte ClipSize { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ClipSize;
+        public override byte ClipSize { get; set; } = 1;
 
         /// <inheritdoc/>
-        public override uint AttachmentsCode { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.AttachmentsCode;
+        public override uint AttachmentsCode { get; set; } = 1170;
 
         /// <inheritdoc/>
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -84,22 +80,26 @@ namespace NWAPI.CustomItems.Items
         /// <summary>
         /// Gets or sets the percent chance an SCP will resist being tranquilized. This has no effect if ResistantScps is false.
         /// </summary>
-        public int ScpResistChance { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ScpResistChance;
+        [Description("The percent chance an SCP will resist being tranquilized.")]
+        public int ScpResistChance { get; set; } = 65;
 
         /// <summary>
         /// Gets or sets the amount of time a successful tranquilization lasts for.
         /// </summary>
-        public float Duration { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.Duration;
+        [Description("The amount of time a successful tranquilization lasts for.")]
+        public float Duration { get; set; } = 5f;
 
         /// <summary>
         /// Gets or sets the exponential modifier used to determine how much time is removed from the effect, everytime a player is tranquilized, they gain a resistance to further tranquilizations, reducing the duration of future effects.
         /// </summary>
-        public float ResistanceModifier { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ResistanceModifier;
+        [Description("Everytime a player is tranquilized, they gain a resistance to further tranquilizations, reducing the duration of future effects. This number signifies the exponential modifier used to determine how much time is removed from the effect.")]
+        public float ResistanceModifier { get; set; } = 1.1f;
 
         /// <summary>
         /// Gets or sets a value indicating how often player resistances are reduced.
         /// </summary>
-        public float ResistanceFalloffDelay { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.TranquilizerGun.ResistanceFalloffDelay;
+        [Description("How often the plugin should reduce the resistance amount for players, in seconds.")]
+        public float ResistanceFalloffDelay { get; set; } = 60f;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -242,7 +242,7 @@ namespace NWAPI.CustomItems.Items
                 yield break;
             }
 
-            if(!inElevator)
+            if (!inElevator)
                 player.Position = oldPosition;
 
         }

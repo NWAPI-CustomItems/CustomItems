@@ -1,25 +1,17 @@
-﻿using NWAPI.CustomItems.API.Enums;
+﻿using CustomPlayerEffects;
+using InventorySystem.Items.Usables;
+using MEC;
+using NWAPI.CustomItems.API.Enums;
+using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
-using PlayerRoles.PlayableScps.Scp096;
-using PlayerStatsSystem;
-using PluginAPI.Core.Attributes;
+using PlayerRoles;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NWAPI.CustomItems.API.Extensions;
-using NWAPI.CustomItems.API.Extensions.ScpRoles;
-using CustomPlayerEffects;
-using PlayerRoles;
-using MEC;
-using System.Data;
-using InventorySystem.Items.Usables;
 using UnityEngine;
-using CustomItems;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -32,16 +24,16 @@ namespace NWAPI.CustomItems.Items
         public override uint Id { get; set; } = 7;
 
         /// <inheritdoc />
-        public override string Name { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Name;
+        public override string Name { get; set; } = "Mimic hat";
 
         /// <inheritdoc />
-        public override string Description { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Description;
+        public override string Description { get; set; } = "Wearing this hat will change your appearance to that of a random live SCP for a period of time.";
 
         /// <inheritdoc />
-        public override float Weight { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Weight;
+        public override float Weight { get; set; } = 0.1f;
 
         /// <inheritdoc />
-        public override ItemType ModelType { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.ModelType;
+        public override ItemType ModelType { get; set; } = ItemType.SCP268;
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -57,9 +49,9 @@ namespace NWAPI.CustomItems.Items
             }
         };
 
-        public float Duration { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Duration;
+        public float Duration { get; set; } = 15f;
 
-        public float Cooldown { get; set; } = EntryPoint.Instance.Config.CustomItemConfigs.MimicHat.Cooldown;
+        public float Cooldown { get; set; } = 40f;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -138,7 +130,7 @@ namespace NWAPI.CustomItems.Items
             if (!Round.IsRoundStarted && Round.Duration.TotalSeconds > 0)
                 yield break;
 
-            if(player != null && player.IsAlive && _oldRoles.TryGetValue(player.UserId, out var role))
+            if (player != null && player.IsAlive && _oldRoles.TryGetValue(player.UserId, out var role))
             {
                 player.ChangeAppearance(role, false);
 

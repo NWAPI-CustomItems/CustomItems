@@ -6,13 +6,9 @@ using NWAPI.CustomItems.API.Spawn;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using static PlayerList;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -88,12 +84,12 @@ namespace NWAPI.CustomItems.Items
 
             Timing.CallDelayed(1, () =>
             {
-                foreach(var item in ev.Player.Items.ToList())
+                foreach (var item in ev.Player.Items.ToList())
                 {
                     if (item.ItemSerial != serial)
                         continue;
 
-                    if(item is BodyArmor armor)
+                    if (item is BodyArmor armor)
                     {
                         Log.Info($"Armor {armor.StaminaModifierActive} | {armor.StaminaRegenMultiplier} | {armor.StaminaUsageMultiplier} | {armor.SprintingDisabled} | {armor.Weight} | {armor.HelmetEfficacy} | {armor.VestEfficacy}");
                     }
