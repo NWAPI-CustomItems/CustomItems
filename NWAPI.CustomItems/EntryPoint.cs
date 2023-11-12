@@ -69,6 +69,8 @@ namespace CustomItems
             {
                 Log.Error($"Error on trying to register items: {e.Message}");
             }
+
+            Log.Warning($"NWAPI.CustomItems {Version} fully loaded.");
         }
 
         [PluginUnload]
