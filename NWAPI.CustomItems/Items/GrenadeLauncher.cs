@@ -21,7 +21,6 @@ namespace CustomItems.Items
     [CustomItem]
     public class GrenadeLauncher : CustomWeapon
     {
-
         public static GrenadeLauncher Instance;
 
         /// <inheritdoc/>
@@ -136,7 +135,7 @@ namespace CustomItems.Items
         }
 
         [PluginEvent]
-        public void OnRoundEnd(RoundEndEvent _)
+        public void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
             ClearCache();
         }
@@ -280,7 +279,6 @@ namespace CustomItems.Items
 
             player.ThrowItem(throwable, true);
         }
-
 
         private void ClearCache()
         {

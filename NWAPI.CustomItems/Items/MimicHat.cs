@@ -98,7 +98,7 @@ namespace NWAPI.CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
-            Timing.CallDelayed(.3f, () =>
+            Timing.CallDelayed(.5f, () =>
             {
                 var scps = Player.GetPlayers().Where(r => r.IsSCP && r.Role != RoleTypeId.Scp079 && r.Role != RoleTypeId.Scp0492 && r.Role != RoleTypeId.Scp3114).ToList();
                 if (scps.Any())
@@ -111,7 +111,7 @@ namespace NWAPI.CustomItems.Items
                     ev.Player.ChangeAppearance(role, true);
                     ev.Player.ReceiveHint(string.Format(AppearanceChange, role), HintDuration);
 
-                    Timing.RunCoroutine(RestoreSkin(ev.Player, 15));
+                    Timing.RunCoroutine(RestoreSkin(ev.Player, Duration));
                 }
                 else
                 {
@@ -122,13 +122,13 @@ namespace NWAPI.CustomItems.Items
 
                     ev.Player.ChangeAppearance(role, true);
 
-                    Timing.RunCoroutine(RestoreSkin(ev.Player, 15));
+                    Timing.RunCoroutine(RestoreSkin(ev.Player, Duration));
 
                     // Sets hat cooldown.
                     UsableItemsController.GetHandler(ev.Player.ReferenceHub).PersonalCooldowns[ev.Item.ItemTypeId] = Time.timeSinceLevelLoad + Duration + Cooldown;
 
                     ev.Player.ReceiveHint(string.Format(AppearanceChange, role), HintDuration);
-                    Timing.RunCoroutine(RestoreSkin(ev.Player, 15));
+                    Timing.RunCoroutine(RestoreSkin(ev.Player, Duration));
                 }
             });
         }
