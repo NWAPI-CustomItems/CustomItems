@@ -29,7 +29,7 @@ namespace CustomItems
         /// <summary>
         /// Gets the plugin version.
         /// </summary>
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         /// <summary>
         /// Gets the Harmony instance used for patching and unpatching.
