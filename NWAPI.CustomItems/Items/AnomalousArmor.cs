@@ -2,12 +2,14 @@
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
 using System.Collections.Generic;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
     public class AnomalousArmor : CustomArmor
     {
+        [YamlIgnore]
         public static AnomalousArmor Instance;
 
         /// <inheritdoc/>

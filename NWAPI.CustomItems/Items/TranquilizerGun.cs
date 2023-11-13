@@ -13,11 +13,13 @@ using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.Ragdolls;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using YamlDotNet.Serialization;
 
 // -----------------------------------------------------------------------
 // <copyright file="TranquilizerGun.cs" company="Joker119">
@@ -31,6 +33,7 @@ namespace NWAPI.CustomItems.Items
     [API.Features.Attributes.CustomItem]
     public class TranquilizerGun : CustomWeapon
     {
+        [YamlIgnore]
         public static TranquilizerGun Instance;
 
         /// <inheritdoc/>
@@ -129,6 +132,7 @@ namespace NWAPI.CustomItems.Items
             if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem))
                 return;
 
+            Log.Debug($"{ev.Player.LogName} is sleeping with {Name} a {ev.Target.LogName}", EntryPoint.Instance.Config.DebugMode);
             if (ev.DamageHandler is FirearmDamageHandler dmg)
             {
                 if (!FriendlyFire && ev.Target.Team == ev.Player.Team)
@@ -167,44 +171,56 @@ namespace NWAPI.CustomItems.Items
                 Timing.RunCoroutine(DoTranquilize(ev.Target, duration));
         }
 
+        [PluginEvent]
+        private void OnShooting(PlayerShotWeaponEvent ev)
+        {
+            if (!Check(ev.Firearm))
+                return;
+
+            Timing.RunCoroutine(DoTranquilize(ev.Player, Duration));
+        }
+
         private IEnumerator<float> DoTranquilize(Player player, float duration)
         {
             activeTranqs.Add(player);
             bool inElevator = InElevator(player);
             Vector3 oldPosition = player.Position;
-            var previousItem = player.CurrentItem;
             var previousScale = player.ReferenceHub.transform.localScale;
             float newHealth = player.Health - Damage;
-            List<StatusEffectBase> activeEffects = ListPool<StatusEffectBase>.Shared.Rent();
-            player.CurrentItem = null;
 
             if (newHealth <= 0)
                 yield break;
+
+            if (player.CurrentItem != null)
+                player.DropItem(player.CurrentItem);
 
             BasicRagdoll? ragdoll = null;
 
             if (player.Role != RoleTypeId.Scp106)
                 ragdoll = RagdollExtensions.CreateAndSpawn(player.Role, player.DisplayNickname, "Tranquilizado", player.Position, player.ReferenceHub.PlayerCameraReference.rotation, player);
 
+
             if (player.RoleBase is Scp096Role scp)
                 scp.EndRage();
 
             try
             {
+                player.SetPlayerScale(new(0.02f, 0.02f, 0.02f));
+                player.Health = newHealth;
+                player.IsGodModeEnabled = true;
+
+                player.EffectsManager.EnableEffect<Flashed>(duration);
+                player.EffectsManager.EnableEffect<Blinded>(duration + 1);
                 player.EffectsManager.EnableEffect<Invisible>(duration);
                 player.EffectsManager.EnableEffect<AmnesiaItems>(duration);
                 player.EffectsManager.EnableEffect<AmnesiaVision>(duration);
-
-                player.SetPlayerScale(Vector3.one * 0.02f);
-                //dwplayer.Position += Vector3;
-                player.Health = newHealth;
-                player.IsGodModeEnabled = true;
                 player.EffectsManager.EnableEffect<Ensnared>(duration);
             }
             catch (Exception e)
             {
-                player.IsGodModeEnabled = false;
-                Log.Error($"{nameof(TranquilizerGun)}: {e}");
+                Log.Error($"{nameof(TranquilizerGun)}::{nameof(DoTranquilize)}: {e} | {player?.LogName}");
+                if(player != null)
+                    player.IsGodModeEnabled = false;
             }
 
             yield return Timing.WaitForSeconds(duration);
@@ -224,11 +240,7 @@ namespace NWAPI.CustomItems.Items
                 /*if (!DropItems)
                     player.CurrentItem = previousItem;*/
 
-                /*foreach (StatusEffectBase effect in activeEffects.Where(effect => (effect.Duration - duration) > 0))
-                    player.EnableEffect(effect, effect.Duration);*/
-
                 activeTranqs.Remove(player);
-                ListPool<StatusEffectBase>.Shared.Return(activeEffects);
             }
             catch (Exception e)
             {
@@ -242,9 +254,10 @@ namespace NWAPI.CustomItems.Items
                 yield break;
             }
 
-            if (!inElevator)
+            if (inElevator)
+                player.Position += Vector3.up * 0.25f;
+            else
                 player.Position = oldPosition;
-
         }
 
         private IEnumerator<float> ReduceResistances()

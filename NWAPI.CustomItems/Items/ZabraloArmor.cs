@@ -9,12 +9,14 @@ using PluginAPI.Events;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
     public class ZabraloArmor : CustomArmor
     {
+        [YamlIgnore]
         public static ZabraloArmor Instance;
 
         /// <inheritdoc/>

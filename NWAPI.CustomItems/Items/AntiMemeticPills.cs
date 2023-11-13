@@ -1,4 +1,5 @@
-﻿using CustomPlayerEffects;
+﻿using CustomItems;
+using CustomPlayerEffects;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
@@ -7,12 +8,14 @@ using PlayerRoles.PlayableScps.Scp096;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
     public class AntiMemeticPills : CustomItem
     {
+        [YamlIgnore]
         public static AntiMemeticPills Instance;
 
         /// <inheritdoc />
@@ -87,6 +90,7 @@ namespace NWAPI.CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
+            Log.Debug($"{ev.Player.LogName} is using {Name}", EntryPoint.Instance.Config.DebugMode);
             foreach (var player in Player.GetPlayers())
             {
                 if (player.Role != PlayerRoles.RoleTypeId.Scp096 || player.RoleBase is not Scp096Role role)

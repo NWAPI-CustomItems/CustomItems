@@ -15,12 +15,14 @@ using PluginAPI.Events;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace CustomItems.Items
 {
     [CustomItem]
     public class GrenadeLauncher : CustomWeapon
     {
+        [YamlIgnore]
         public static GrenadeLauncher Instance;
 
         /// <inheritdoc/>
@@ -147,6 +149,7 @@ namespace CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
+            Log.Debug($"{ev.Player.LogName} is pickup {Name}", EntryPoint.Instance.Config.DebugMode);
             if (!LoadedGrenades.ContainsKey(ev.Item.NetworkInfo.Serial))
             {
                 Queue<ProjectileType> queue = new();
@@ -174,6 +177,7 @@ namespace CustomItems.Items
             if (ev.Player.CurrentItem is not Firearm firearm || firearm.Status.Ammo >= ClipSize || WeaponsRealoding.Contains(ev.Firearm.ItemSerial))
                 return false;
 
+            Log.Debug($"{ev.Player.LogName} is reloading {Name}", EntryPoint.Instance.Config.DebugMode);
             bool isCustomGrenade = false;
 
             foreach (var item in ev.Player.Items.ToList())
@@ -247,6 +251,8 @@ namespace CustomItems.Items
             firearm.Status.Ammo > firearm.AmmoManagerModule.MaxAmmo)
                 return;
 
+            Log.Debug($"{ev.Player.LogName} is shooting {Name}", EntryPoint.Instance.Config.DebugMode);
+
             if (LoadedGrenades.TryGetValue(ev.Firearm.ItemSerial, out var queue) && queue.TryDequeue(out var grenade))
             {
                 ThrowGrenade(ev.Player, grenade);
@@ -264,6 +270,7 @@ namespace CustomItems.Items
 
         private void ThrowGrenade(Player player, ProjectileType type)
         {
+            Log.Debug($"ThrowGrenade invoked", EntryPoint.Instance.Config.DebugMode);
             ThrowableItem? throwable = type switch
             {
                 ProjectileType.Flashbang => ItemType.GrenadeFlash.CreateThrowableItem(player),
@@ -277,6 +284,7 @@ namespace CustomItems.Items
 
             GrenadesSerials.Add(throwable.ItemSerial);
 
+            Log.Debug($"{player.LogName} is throwing a grenade from {Name}", EntryPoint.Instance.Config.DebugMode);
             player.ThrowItem(throwable, true);
         }
 

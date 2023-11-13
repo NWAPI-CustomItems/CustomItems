@@ -1,4 +1,5 @@
-﻿using CustomPlayerEffects;
+﻿using CustomItems;
+using CustomPlayerEffects;
 using LightContainmentZoneDecontamination;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
@@ -12,12 +13,14 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using UnityEngine;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
     public class EscapeCoin : CustomItem
     {
+        [YamlIgnore]
         public static EscapeCoin Instance;
 
         /// <inheritdoc />
@@ -84,6 +87,7 @@ namespace NWAPI.CustomItems.Items
 
             if (ev.Player.EffectsManager.TryGetEffect<PocketCorroding>(out var pocketCorroding) && pocketCorroding.IsEnabled)
             {
+                Log.Debug($"{ev.Player.LogName} is using {Name}", EntryPoint.Instance.Config.DebugMode);
                 var coin = ev.Player.CurrentItem;
                 Timing.CallDelayed(3, () =>
                 {

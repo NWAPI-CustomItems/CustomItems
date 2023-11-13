@@ -1,4 +1,5 @@
-﻿using CustomPlayerEffects;
+﻿using CustomItems;
+using CustomPlayerEffects;
 using InventorySystem.Items.Usables;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
@@ -13,12 +14,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
-    [API.Features.Attributes.CustomItem]
+    //[API.Features.Attributes.CustomItem]
     public class MimicHat : CustomItem
     {
+        [YamlIgnore]
         public static MimicHat Instance;
 
         /// <inheritdoc />
@@ -91,12 +94,19 @@ namespace NWAPI.CustomItems.Items
             RoleTypeId.Scp106,
         };
 
+        [PluginEvent]
+        public void OnWaitingForPlayers(WaitingForPlayersEvent _)
+        {
+            _oldRoles.Clear();
+        }
 
         [PluginEvent]
         public void OnItemUsed(PlayerUsedItemEvent ev)
         {
             if (!Check(ev.Item))
                 return;
+
+            Log.Debug($"{ev.Player.LogName} is using {Name}", EntryPoint.Instance.Config.DebugMode);
 
             Timing.CallDelayed(.5f, () =>
             {
@@ -135,6 +145,7 @@ namespace NWAPI.CustomItems.Items
 
         private IEnumerator<float> RestoreSkin(Player player, float duration)
         {
+            Log.Debug($"{player.LogName} restore skin invoked waiting {duration} {Name}", EntryPoint.Instance.Config.DebugMode);
             yield return Timing.WaitForSeconds(duration);
 
             // round is ended.
@@ -143,6 +154,7 @@ namespace NWAPI.CustomItems.Items
 
             if (player != null && player.IsReady && player.IsAlive && _oldRoles.TryGetValue(player.UserId, out var role))
             {
+                Log.Debug($"{player.LogName} restoring skin with the item {Name}", EntryPoint.Instance.Config.DebugMode);
                 player.ChangeAppearance(role, false);
 
                 _oldRoles.Remove(player.UserId);

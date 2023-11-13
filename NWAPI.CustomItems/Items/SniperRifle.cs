@@ -6,12 +6,14 @@ using PlayerStatsSystem;
 using PluginAPI.Events;
 using System.Collections.Generic;
 using System.ComponentModel;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [CustomItem]
     public class SniperRifle : CustomWeapon
     {
+        [YamlIgnore]
         public static SniperRifle Instance;
 
         /// <inheritdoc/>
@@ -48,7 +50,6 @@ namespace NWAPI.CustomItems.Items
                 {
                     Chance = 100,
                     Location = SpawnLocationType.InsideHid,
-                    Offset = new(2, 0, 0)
                 },
                 new()
                 {

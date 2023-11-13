@@ -1,4 +1,5 @@
-﻿using NWAPI.CustomItems.API.Enums;
+﻿using CustomItems;
+using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
 using NWAPI.CustomItems.API.Features;
@@ -8,12 +9,14 @@ using PlayerStatsSystem;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
     [API.Features.Attributes.CustomItem]
     public class LethalInjection : CustomItem
     {
+        [YamlIgnore]
         public static LethalInjection Instance;
 
         /// <inheritdoc />
@@ -77,6 +80,7 @@ namespace NWAPI.CustomItems.Items
             if (!Check(ev.Item))
                 return;
 
+            Log.Debug($"{ev.Player.LogName} is using {Name}", EntryPoint.Instance.Config.DebugMode);
             foreach (var player in Player.GetPlayers())
             {
                 if (player.Role != PlayerRoles.RoleTypeId.Scp096 || player.RoleBase is not Scp096Role role || !role.HasTarget(ev.Player))
