@@ -171,15 +171,6 @@ namespace NWAPI.CustomItems.Items
                 Timing.RunCoroutine(DoTranquilize(ev.Target, duration));
         }
 
-        [PluginEvent]
-        private void OnShooting(PlayerShotWeaponEvent ev)
-        {
-            if (!Check(ev.Firearm))
-                return;
-
-            Timing.RunCoroutine(DoTranquilize(ev.Player, Duration));
-        }
-
         private IEnumerator<float> DoTranquilize(Player player, float duration)
         {
             activeTranqs.Add(player);
