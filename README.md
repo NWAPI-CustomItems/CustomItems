@@ -35,7 +35,7 @@ InsideHidLeft
 InsideHidRight
 InsideLczWc
 InsideServersBottom
-// Using this will make a random locker throughout the facility unless LockerZone is in a FacilityZone other than None.
+// Using this will cause the item to appear inside a random locker among the entire facility if LockerZone is set to None, you can specify the zone by assigning a valid value to LockerZone.
 InsideLocker
 ```
 ### FacilityZones
