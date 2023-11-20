@@ -35,6 +35,16 @@ InsideHidLeft
 InsideHidRight
 InsideLczWc
 InsideServersBottom
-// using this causes the item to appear inside a random locker on the map.
+// Using this will make a random locker throughout the facility unless LockerZone is in a FacilityZone other than None.
 InsideLocker
+```
+### FacilityZones
+This are the values that FacilityZone enum can have
+```cs
+None
+LightContainment
+HeavyContainment
+Entrance
+Surface
+Other
 ```
