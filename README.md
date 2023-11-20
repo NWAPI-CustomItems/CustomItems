@@ -38,7 +38,7 @@ InsideServersBottom
 // Using this will cause the item to appear inside a random locker among the entire facility if LockerZone is set to None, you can specify the zone by assigning a valid value to LockerZone.
 InsideLocker
 ```
-### FacilityZones
+### LockerZone
 This are the values that FacilityZone enum can have
 ```cs
 None
