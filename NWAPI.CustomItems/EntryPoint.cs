@@ -29,7 +29,7 @@ namespace CustomItems
         /// <summary>
         /// Gets the plugin version.
         /// </summary>
-        public const string Version = "1.0.3";
+        public const string Version = "1.0.4";
 
         /// <summary>
         /// Gets the Harmony instance used for patching and unpatching.
@@ -70,7 +70,7 @@ namespace CustomItems
                 Log.Error($"Error on trying to register items: {e.Message}");
             }
 
-            Log.Warning($"NWAPI.CustomItems {Version} fully loaded.");
+            Log.Info($"NWAPI.CustomItems {Version} fully loaded.");
         }
 
         [PluginUnload]

@@ -18,7 +18,7 @@ using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
-    //[API.Features.Attributes.CustomItem]
+    [API.Features.Attributes.CustomItem]
     public class MimicHat : CustomItem
     {
         [YamlIgnore]
@@ -53,19 +53,41 @@ namespace NWAPI.CustomItems.Items
             }
         };
 
+        /// <summary>
+        /// Gets or sets the disguise duration.
+        /// </summary>
         [Description("Disguise duration")]
         public float Duration { get; set; } = 15f;
 
+        /// <summary>
+        /// Gets or sets the cooldown when the item is used.
+        /// </summary>
         [Description("Cooldown after using the custom item the cooldown is calculated with (duration + cooldown)")]
         public float Cooldown { get; set; } = 40f;
 
+        /// <summary>
+        /// Gets or sets the hint message when a player appearance is changed.
+        /// </summary>
         [Description("Hint that will appear on a player's face when changing appearance. {0} is the appearance the player took (roletype).")]
         public string AppearanceChange { get; set; } = "Your appearance changed to that of {0}";
 
+        /// <summary>
+        /// Gets or sets hint message when the appearance is restored to normal.
+        /// </summary>
         [Description("Hint that will appear when the player's appearance returns to normal.")]
         public string AppearanceRestore { get; set; } = "Your appearance is back to normal.";
 
+        /// <summary>
+        /// Gets or sets the hint message duration.
+        /// </summary>
+        [Description("The hint message of the disguise.")]
         public float HintDuration { get; set; } = 5f;
+
+        /// <summary>
+        /// Gets or sets if the custom item will be spawned.
+        /// </summary>
+        [Description("If this is true, this custom item will not spawn.")]
+        public bool IsDisabled { get; set; } = false;
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -94,6 +116,14 @@ namespace NWAPI.CustomItems.Items
             RoleTypeId.Scp106,
         };
 
+        public override void SpawnAll()
+        {
+            if (IsDisabled)
+                return;
+
+            base.SpawnAll();
+        }
+
         [PluginEvent]
         public void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
@@ -120,6 +150,9 @@ namespace NWAPI.CustomItems.Items
 
                     ev.Player.ChangeAppearance(role, true);
                     ev.Player.ReceiveHint(string.Format(AppearanceChange, role), HintDuration);
+
+                    // Sets hat cooldown.
+                    UsableItemsController.GetHandler(ev.Player.ReferenceHub).PersonalCooldowns[ev.Item.ItemTypeId] = Time.timeSinceLevelLoad + Duration + Cooldown;
 
                     Timing.RunCoroutine(RestoreSkin(ev.Player, Duration));
                 }

@@ -1,13 +1,7 @@
-﻿using InventorySystem.Items.Armor;
-using MEC;
-using NWAPI.CustomItems.API.Enums;
+﻿using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
-using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Events;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using YamlDotNet.Serialization;
 

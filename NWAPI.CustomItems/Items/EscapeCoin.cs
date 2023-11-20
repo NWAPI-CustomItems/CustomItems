@@ -97,9 +97,9 @@ namespace NWAPI.CustomItems.Items
                         ev.Player.EffectsManager.DisableEffect<PocketCorroding>();
                         ev.Player.EffectsManager.DisableEffect<Corroding>();
                         ev.Player.EffectsManager.EnableEffect<Traumatized>(40);
-
                         TrackedSerials.Remove(coin.ItemSerial);
                         ev.Player.RemoveItemFix(coin);
+                        ev.Player.Position = position;
                         SpawnCoin();
                     }
                 });

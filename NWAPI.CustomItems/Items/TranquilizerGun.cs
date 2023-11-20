@@ -2,7 +2,6 @@
 using CustomPlayerEffects;
 using Interactables.Interobjects;
 using MEC;
-using NorthwoodLib.Pools;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
@@ -13,7 +12,6 @@ using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.Ragdolls;
 using PlayerStatsSystem;
 using PluginAPI.Core;
-using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
@@ -173,6 +171,8 @@ namespace NWAPI.CustomItems.Items
 
         private IEnumerator<float> DoTranquilize(Player player, float duration)
         {
+            Log.Debug($"{nameof(DoTranquilize)}: Tranquilizen {player.LogName} for the duration of {duration}", EntryPoint.Instance.Config.DebugMode);
+
             activeTranqs.Add(player);
             bool inElevator = InElevator(player);
             Vector3 oldPosition = player.Position;
@@ -187,7 +187,7 @@ namespace NWAPI.CustomItems.Items
 
             BasicRagdoll? ragdoll = null;
 
-            if (player.Role != RoleTypeId.Scp106)
+            if (player.Role != RoleTypeId.Scp106) // For some strange reason its spawns 2 ragdolls, i dont want to fixed... lazyyyy
                 ragdoll = RagdollExtensions.CreateAndSpawn(player.Role, player.DisplayNickname, "Tranquilizado", player.Position, player.ReferenceHub.PlayerCameraReference.rotation, player);
 
 
@@ -201,7 +201,7 @@ namespace NWAPI.CustomItems.Items
                 player.IsGodModeEnabled = true;
 
                 player.EffectsManager.EnableEffect<Flashed>(duration);
-                player.EffectsManager.EnableEffect<Blinded>(duration + 1);
+                player.EffectsManager.EnableEffect<Blinded>(duration + 0.3f);
                 player.EffectsManager.EnableEffect<Invisible>(duration);
                 player.EffectsManager.EnableEffect<AmnesiaItems>(duration);
                 player.EffectsManager.EnableEffect<AmnesiaVision>(duration);
@@ -210,7 +210,7 @@ namespace NWAPI.CustomItems.Items
             catch (Exception e)
             {
                 Log.Error($"{nameof(TranquilizerGun)}::{nameof(DoTranquilize)}: {e} | {player?.LogName}");
-                if(player != null)
+                if (player != null)
                     player.IsGodModeEnabled = false;
             }
 
