@@ -99,6 +99,15 @@ namespace CustomItems
         {
             new ZabraloArmor(),
         };
+
+        /// <summary>
+        /// Gets the list of smoke grenades.
+        /// </summary>
+        [Description("The list of smoke grenades.")]
+        public List<SmokeGrenade> SmokeGrenades { get; set; } = new()
+        {
+            new SmokeGrenade(),
+        };
     }
 
 }

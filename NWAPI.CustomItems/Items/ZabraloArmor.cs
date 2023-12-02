@@ -1,7 +1,12 @@
-﻿using NWAPI.CustomItems.API.Enums;
+﻿using CustomPlayerEffects;
+using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
+using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Events;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -52,10 +57,18 @@ namespace NWAPI.CustomItems.Items
         public override Vector3 Scale { get; set; } = new(1.3f, 1.3f, 1.3f);
 
         /// <inheritdoc/>
-        public override float StaminaUseMultiplier { get; set; } = 5f;
+        public override float StaminaUseMultiplier { get; set; } = 8f;
 
         /// <inheritdoc/>
         public override float StaminaRegenMultiplier { get; set; } = 0.002f;
+
+        /// <summary>
+        /// Gets or sets the damage reduction given for the armor owner.
+        /// </summary>
+        [Description("How much damage resistance will be given to the player with the armor")]
+        public byte DamageReduction { get; set; } = 150;
+
+        private HashSet<Player> _PlayersWithArmor = new();
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -71,6 +84,51 @@ namespace NWAPI.CustomItems.Items
         {
             base.UnsubscribeEvents();
             PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
+        }
+
+        public override void OnArmorPickedup(PlayerPickupArmorEvent ev)
+        {
+            base.OnArmorPickedup(ev);
+
+            AddBuff(ev.Player);
+        }
+
+        [PluginEvent]
+        public void OnArmorDropped(PlayerDroppedItemEvent ev)
+        {
+            if (!Check(ev.Item))
+                return;
+
+            RemoveBuff(ev.Player);
+        }
+
+        [PluginEvent]
+        public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
+        {
+            _PlayersWithArmor.Clear();
+        }
+
+        private void AddBuff(Player player)
+        {
+            if (!_PlayersWithArmor.Contains(player))
+            {
+                _PlayersWithArmor.Add(player);
+
+                var effect = player.EffectsManager.EnableEffect<DamageReduction>();
+
+                effect.Intensity = DamageReduction;
+            }
+            
+        }
+
+        private void RemoveBuff(Player player)
+        {
+            if(player.IsAlive)
+            {
+                player.EffectsManager.DisableEffect<DamageReduction>();
+            }
+
+            _PlayersWithArmor.Remove(player);
         }
     }
 }

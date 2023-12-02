@@ -106,8 +106,8 @@ namespace NWAPI.CustomItems.Items
             PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
         }
 
-        private Dictionary<string, RoleTypeId> _oldRoles = new();
-        private List<RoleTypeId> _scpRolestypes = new List<RoleTypeId>
+        private readonly Dictionary<string, RoleTypeId> _oldRoles = new();
+        private readonly List<RoleTypeId> _scpRolestypes = new()
         {
             RoleTypeId.Scp939,
             RoleTypeId.Scp049,

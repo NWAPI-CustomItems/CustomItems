@@ -223,6 +223,15 @@ namespace CustomItems.Items
                     WeaponsRealoding.Remove(ev.Firearm.ItemSerial);
                 });
 
+                if (isCustomGrenade)
+                {
+                    Log.Debug($"{Name}.{nameof(OnReloading)}: {ev.Player.Nickname} successfully reloaded. Grenade type: {item.ItemTypeId} IsCustomGrenade: {isCustomGrenade}",
+                    EntryPoint.Instance.Config.DebugMode);
+
+                    ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                    break;
+                }
+
                 ProjectileType type = item.ItemTypeId switch
                 {
                     ItemType.GrenadeFlash => ProjectileType.Flashbang,
@@ -232,7 +241,7 @@ namespace CustomItems.Items
                     _ => ProjectileType.FragGrenade
                 };
                 LoadedGrenades[ev.Firearm.ItemSerial].Enqueue(type);
-                Log.Debug($"{Name}.{nameof(OnReloading)}: {ev.Player.Nickname} successfully reloaded. Grenade type: {type} IsCustom: {isCustomGrenade}",
+                Log.Debug($"{Name}.{nameof(OnReloading)}: {ev.Player.Nickname} successfully reloaded. Grenade type: {type} IsCustomGrenade: {isCustomGrenade}",
                 EntryPoint.Instance.Config.DebugMode);
 
                 ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
@@ -261,6 +270,7 @@ namespace CustomItems.Items
 
             if (LoadedCustomGrenades.TryGetValue(ev.Firearm.ItemSerial, out var customGrenadesQueue) && customGrenadesQueue.TryDequeue(out var customGrenade))
             {
+                Log.Debug($"{ev.Player.LogName} is shooting {Name} and is a CustomGrenade {customGrenade?.Name}", EntryPoint.Instance.Config.DebugMode);
                 customGrenade?.Throw(ev.Player.Position, true, customGrenade.Weight, customGrenade.ModelType, ev.Player);
                 return;
             }

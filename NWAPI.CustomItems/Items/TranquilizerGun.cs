@@ -12,6 +12,7 @@ using PlayerRoles.PlayableScps.Scp096;
 using PlayerRoles.Ragdolls;
 using PlayerStatsSystem;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
@@ -167,6 +168,13 @@ namespace NWAPI.CustomItems.Items
 
             if (duration > 0f)
                 Timing.RunCoroutine(DoTranquilize(ev.Target, duration));
+        }
+
+        [PluginEvent]
+        private void OnWaitingForPlayers(WaitingForPlayersEvent _)
+        {
+            tranquilizedPlayers.Clear();
+            activeTranqs.Clear();
         }
 
         private IEnumerator<float> DoTranquilize(Player player, float duration)
