@@ -118,12 +118,12 @@ namespace NWAPI.CustomItems.Items
 
                 effect.Intensity = DamageReduction;
             }
-            
+
         }
 
         private void RemoveBuff(Player player)
         {
-            if(player.IsAlive)
+            if (player.IsAlive)
             {
                 player.EffectsManager.DisableEffect<DamageReduction>();
             }

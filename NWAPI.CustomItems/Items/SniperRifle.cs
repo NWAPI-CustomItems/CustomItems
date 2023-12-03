@@ -88,6 +88,16 @@ namespace NWAPI.CustomItems.Items
             PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
         }
 
+        protected override void OnShoot(PlayerShotWeaponEvent ev)
+        {
+            if (ev.Firearm.Status.Ammo > ClipSize)
+            {
+                ev.Firearm.Status = new(ClipSize, ev.Firearm.Status.Flags, ev.Firearm.Status.Attachments);
+            }
+
+            base.OnShoot(ev);
+        }
+
         protected override void OnHurting(PlayerDamageEvent ev)
         {
             if (ev.Player is null || !ev.Player.IsReady || !Check(ev.Player.CurrentItem) || ev.Target is null || !ev.Target.IsReady)

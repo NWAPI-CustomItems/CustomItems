@@ -1,14 +1,6 @@
 ﻿using HarmonyLib;
-using InventorySystem.Items.ThrowableProjectiles;
 using InventorySystem.Items.Usables.Scp244;
-using InventorySystem.Items.Usables.Scp244.Hypothermia;
 using NWAPI.CustomItems.Items;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace NWAPI.CustomItems.Patches
 {

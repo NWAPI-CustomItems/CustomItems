@@ -1,28 +1,17 @@
-﻿using GameCore;
-using InventorySystem.Items.ThrowableProjectiles;
-using InventorySystem.Items.Usables.Scp244;
+﻿using InventorySystem.Items.Usables.Scp244;
 using MEC;
-using Mirror;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Features.Attributes;
 using NWAPI.CustomItems.API.Spawn;
-using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Items;
 using PluginAPI.Events;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using Utils;
 using YamlDotNet.Serialization;
-using static PlayerList;
-using Log = PluginAPI.Core.Log;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -33,7 +22,7 @@ namespace NWAPI.CustomItems.Items
         public static SmokeGrenade Instance;
 
         /// <inheritdoc/>
-        public override bool ExplodeOnCollision {get; set;} = true;
+        public override bool ExplodeOnCollision { get; set; } = true;
 
         /// <inheritdoc/>
         public override float FuseTime { get; set; } = 2f;
@@ -127,7 +116,7 @@ namespace NWAPI.CustomItems.Items
 
             var scp244 = item.OriginalObject as Scp244DeployablePickup;
 
-            
+
             if (scp244 != null)
             {
                 scp244.State = Scp244State.Active;
@@ -148,7 +137,7 @@ namespace NWAPI.CustomItems.Items
         {
             Timing.CallDelayed(SmokeDuration, () =>
             {
-                if(item.OriginalObject != null)
+                if (item.OriginalObject != null)
                 {
                     preventHypotermia.Remove(item.Serial);
                     item.Destroy();
