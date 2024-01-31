@@ -128,7 +128,7 @@ namespace NWAPI.CustomItems.Items
         /// <inheritdoc />
         protected override void OnHurting(PlayerDamageEvent ev)
         {
-            if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem))
+            if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem) || ev.Target.Team == ev.Player.Team && !FriendlyFire)
                 return;
 
             Log.Debug($"{ev.Player.LogName} is sleeping with {Name} a {ev.Target.LogName}", EntryPoint.Instance.Config.DebugMode);
@@ -171,7 +171,7 @@ namespace NWAPI.CustomItems.Items
         }
 
         [PluginEvent]
-        private void OnWaitingForPlayers(WaitingForPlayersEvent _)
+        private void OnWaitingForPlayer(WaitingForPlayersEvent _)
         {
             tranquilizedPlayers.Clear();
             activeTranqs.Clear();

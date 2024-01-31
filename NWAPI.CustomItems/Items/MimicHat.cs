@@ -125,7 +125,7 @@ namespace NWAPI.CustomItems.Items
         }
 
         [PluginEvent]
-        public void OnWaitingForPlayers(WaitingForPlayersEvent _)
+        public void OnWaitingForPlayer(WaitingForPlayersEvent _)
         {
             _oldRoles.Clear();
         }
@@ -178,7 +178,7 @@ namespace NWAPI.CustomItems.Items
 
         private IEnumerator<float> RestoreSkin(Player player, float duration)
         {
-            Log.Debug($"{player.LogName} restore skin invoked waiting {duration} {Name}", EntryPoint.Instance.Config.DebugMode);
+            Log.Debug($"{player.LogName} restore skin invoked waiting {duration} | {Name}", EntryPoint.Instance.Config.DebugMode);
             yield return Timing.WaitForSeconds(duration);
 
             // round is ended.
