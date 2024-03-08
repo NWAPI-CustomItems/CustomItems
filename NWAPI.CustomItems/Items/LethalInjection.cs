@@ -1,4 +1,5 @@
 ﻿using CustomItems;
+using CustomPlayerEffects;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Extensions.ScpRoles;
@@ -9,6 +10,7 @@ using PlayerStatsSystem;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using System.ComponentModel;
 using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
@@ -33,6 +35,9 @@ namespace NWAPI.CustomItems.Items
 
         /// <inheritdoc />
         public override ItemType ModelType { get; set; } = ItemType.Adrenaline;
+
+        [Description("When the player is killed this reason be show in the console of the player.")]
+        public string DeathReason { get; set; } = " You were killed by the custom item Lethal injection";
 
         /// <inheritdoc />
         public override SpawnProperties? SpawnProperties { get; set; } = new()
@@ -89,8 +94,16 @@ namespace NWAPI.CustomItems.Items
                 role.EndRage();
             }
 
-            ev.Player.Kill(new UniversalDamageHandler(-1, DeathTranslations.Poisoned));
-            ev.Player.SendConsoleMessage($" You were killed by the custom item {Name}");
+            if(ev.Player.EffectsManager.TryGetEffect<AntiScp207>(out var statusEffect) && statusEffect.IsEnabled)
+            {
+                statusEffect.IsEnabled = false;
+                ev.Player.Health = 1;
+            }
+            else
+            {
+                ev.Player.Kill(new UniversalDamageHandler(-1, DeathTranslations.Poisoned));
+                ev.Player.SendConsoleMessage(DeathReason);
+            }
         }
     }
 }

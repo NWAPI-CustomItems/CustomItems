@@ -108,6 +108,25 @@ namespace CustomItems
         {
             new SmokeGrenade(),
         };
+
+
+        /// <summary>
+        /// Gets the list of Ahti keycards.
+        /// </summary>
+        [Description("The list of Ahti keycards.")]
+        public List<AhtiKeycard> AhtiKeycard { get; set; } = new()
+        {
+            new AhtiKeycard(),
+        };
+
+        /// <summary>
+        /// Gets the list of bloody keycards.
+        /// </summary>
+        [Description("The list of boomer Injections.")]
+        public List<BoomerInjection> BoomerInjections { get; set; } = new()
+        {
+            new BoomerInjection(),
+        };
     }
 
 }
