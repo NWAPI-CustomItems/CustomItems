@@ -99,8 +99,8 @@ namespace NWAPI.CustomItems.Items
                 role.RemoveTarget(ev.Player);
             }
 
-            ev.Player.EffectsManager.EnableEffect<AmnesiaVision>(30, true);
-            ev.Player.EffectsManager.EnableEffect<AmnesiaItems>(10, true);
+            ev.Player.EffectsManager.EnableEffect<Concussed>(30, true);
+            ev.Player.EffectsManager.EnableEffect<AmnesiaItems>(1, true);
         }
     }
 }

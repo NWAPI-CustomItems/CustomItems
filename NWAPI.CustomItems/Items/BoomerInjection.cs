@@ -1,32 +1,29 @@
 ﻿using CustomItems;
+using MapGeneration;
+using MEC;
 using NWAPI.CustomItems.API.Enums;
+using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
-using NWAPI.CustomItems.Commands;
-using PlayerRoles.PlayableScps.Scp096;
-using PlayerStatsSystem;
-using PluginAPI.Core.Attributes;
 using PluginAPI.Core;
+using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using YamlDotNet.Serialization;
-using static PlayerList;
-using UnityEngine;
-using NWAPI.CustomItems.API.Extensions;
-using MapGeneration;
-using MEC;
 using System.ComponentModel;
-using InventorySystem.Items.ThrowableProjectiles;
+using System.Linq;
+using UnityEngine;
+using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.Items
 {
+    /// <summary>
+    /// Represent the main <see cref="BoomerInjection"/> handler.
+    /// </summary>
     [API.Features.Attributes.CustomItem]
     public class BoomerInjection : CustomItem
     {
+        /// <inheritdoc />
         [YamlIgnore]
         public static BoomerInjection Instance;
 
@@ -64,9 +61,6 @@ namespace NWAPI.CustomItems.Items
             }
         };
 
-        [Description("The reason for the death the player will see when exploding as a boomer")]
-        public string BoomerKillReason { get; set; } = "Boomer boom";
-
         [Description("The time that a room will remain with the poisonous gas")]
         public int GasDuration { get; set; } = 20;
 
@@ -87,7 +81,7 @@ namespace NWAPI.CustomItems.Items
 
         [Description("The room when infected its lights will change color, if the color is equal to white (255, 255, 255) the color of the room will not change.")]
         public Color GasRoomColor { get; set; } = Color.green;
-        
+
 
 
         /// <inheritdoc/>
@@ -110,39 +104,73 @@ namespace NWAPI.CustomItems.Items
         private List<string> BoomerPlayers = new();
 
         [PluginEvent]
-        public void OnItemUsed(PlayerUsedItemEvent ev)
+        internal void OnItemUsed(PlayerUsedItemEvent ev)
         {
             if (!Check(ev.Item))
                 return;
 
             Log.Debug($"{ev.Player.LogName} is using {Name}", EntryPoint.Instance.Config.DebugMode);
 
-            BoomerPlayers.Add(ev.Player.UserId);
+            if (BoomerPlayers.Contains(ev.Player.UserId))
+            {
+                if (ev.Player.Room is null)
+                    return;
 
+                if (ev.Player.Room.Name == RoomName.Outside)
+                {
+                    // No posion on this room.
+                    BoomerPlayers.Remove(ev.Player.UserId);
+                    ExplodePlayer(ev.Player);
+                }
+                else
+                {
+                    BoomerPlayers.Remove(ev.Player.UserId);
+
+                    if (ev.Player.Room.gameObject.TryGetComponent<BoomerPoisonedRoom>(out var oldcomp))
+                        oldcomp.Disable();
+
+                    var component = ev.Player.Room.gameObject.AddComponent<BoomerPoisonedRoom>();
+
+                    ExplodePlayer(ev.Player);
+                    component.Init(GasDuration, GasDamage, GasDamageReason, GasRoomColor, WarningHint, HintDuration);
+                }
+
+                return;
+            }
+
+            BoomerPlayers.Add(ev.Player.UserId);
             ev.Player.ReceiveHint(InfectedHint, HintDuration);
         }
 
         [PluginEvent]
-        public void OnPlayerDamage(PlayerDamageEvent ev)
+        internal void OnPlayerDamage(PlayerDamageEvent ev)
         {
             try
             {
-                if (ev.Player is null || ev.Player.IsServer || ev.DamageHandler is ExplosionDamageHandler || !BoomerPlayers.Contains(ev.Target.UserId))
+                if (ev.Player is null || ev.Player.IsServer || !BoomerPlayers.Contains(ev.Target.UserId))
                     return;
 
-                if (ev.Target.Room is null || ev.Target.Room.Name == RoomName.Outside)
+                if (ev.Target.Room is null)
                     return;
 
-                BoomerPlayers.Remove(ev.Target.UserId); ;
+                if (ev.Target.Room.Name == RoomName.Outside)
+                {
+                    // No posion on this room.
+                    BoomerPlayers.Remove(ev.Target.UserId);
+                    ExplodePlayer(ev.Target);
+                }
+                else
+                {
+                    BoomerPlayers.Remove(ev.Target.UserId);
 
-                if (ev.Target.Room.gameObject.TryGetComponent<BoomerPoisonedRoom>(out var oldcomp))
-                    oldcomp.Disable();
+                    if (ev.Target.Room.gameObject.TryGetComponent<BoomerPoisonedRoom>(out var oldcomp))
+                        oldcomp.Disable();
 
-                var component = ev.Target.Room.gameObject.AddComponent<BoomerPoisonedRoom>();
-                SpawnExplosive(ev.Target, ItemType.GrenadeHE, 0.1f);
-                component.Init(GasDuration, GasDamage, GasDamageReason, GasRoomColor, WarningHint, HintDuration);
+                    var component = ev.Target.Room.gameObject.AddComponent<BoomerPoisonedRoom>();
 
-                ev.Target.Kill(BoomerKillReason);
+                    ExplodePlayer(ev.Target);
+                    component.Init(GasDuration, GasDamage, GasDamageReason, GasRoomColor, WarningHint, HintDuration);
+                }
             }
             catch (Exception e)
             {
@@ -151,55 +179,33 @@ namespace NWAPI.CustomItems.Items
         }
 
         [PluginEvent]
-        public void OnPlayerDeath(PlayerDeathEvent ev)
+        internal void OnPlayerDeath(PlayerDeathEvent ev)
         {
-            if (!BoomerPlayers.Contains(ev.Player.UserId))
-                return;
-
-            BoomerPlayers.Remove(ev.Player.UserId);
+            if (BoomerPlayers.Contains(ev.Player.UserId))
+                BoomerPlayers.Remove(ev.Player.UserId);
         }
 
         [PluginEvent]
-        public void OnMapGenerated(MapGeneratedEvent _)
+        internal void OnMapGenerated(MapGeneratedEvent _)
         {
             BoomerPlayers.Clear();
         }
 
         /// <summary>
-        /// Spawns and activates an explosive throwable item of the specified ItemType.
+        /// Explode the player and damage all players around him.
         /// </summary>
-        /// <param name="ply">The player triggering the spawn.</param>
-        /// <param name="type">The ItemType of the explosive to spawn.</param>
-        /// <param name="fuse">The fuse time for the explosive (default is 1 second).</param>
-        /// <param name="playerIsOwner">Determines if the player is considered the owner of the explosive (default is false).</param>
-        private void SpawnExplosive(Player ply, ItemType type, float fuse = 1f, bool playerIsOwner = false)
+        /// <param name="player"></param>
+        private void ExplodePlayer(Player player)
         {
             try
             {
-                // Check if the ItemType is throwable
-                if (!type.IsThrowable())
-                {
-                    return;
-                }
-                // Create a throwable item of the specified ItemType
-                ThrowableItem? throwableItem = type.CreateThrowableItem();
-
-                // Spawn and activate the throwable item at the player's position
-                if (throwableItem != null)
-                {
-                    // Determine the owner of the explosive based on the playerIsOwner parameter
-                    Player? owner = playerIsOwner ? ply : null;
-
-                    // Spawn and activate the explosive
-                    throwableItem.SpawnAndActivateThrowable(ply.Position, fuse, owner);
-                }
+                player.Explode();
             }
             catch (Exception e)
             {
-                Log.Error($"Error on {e}");
+                Log.Error($"Error on {nameof(ExplodePlayer)} in {nameof(BoomerInjection)}: {e.Message}");
             }
         }
-
     }
 
     internal class BoomerPoisonedRoom : MonoBehaviour
@@ -253,7 +259,7 @@ namespace NWAPI.CustomItems.Items
         private float _timeSinceLastUpdate = 0f;
         private RoomLightController Lights = null!;
         private List<string> _playersWarned = new();
-        
+
 
         /// <summary>
         /// Gets cached player userid
@@ -266,7 +272,7 @@ namespace NWAPI.CustomItems.Items
         {
             Room = GetComponent<RoomIdentifier>();
 
-            if(Room == null)
+            if (Room == null)
             {
                 Disable();
 
@@ -282,6 +288,7 @@ namespace NWAPI.CustomItems.Items
                 Log.Warning($"Lights is null in Start method in BoomerInjection.GasRoom");
                 return;
             }
+
             RoomOriginalColor = Lights.NetworkOverrideColor;
             _initialized = true;
         }
@@ -372,7 +379,7 @@ namespace NWAPI.CustomItems.Items
                     {
                         foreach (var player in _playersInRoom)
                         {
-                            if(!_playersWarned.Contains(player.UserId))
+                            if (!_playersWarned.Contains(player.UserId))
                             {
                                 player.ReceiveHint(WarningHint, HintDuration);
                                 _playersWarned.Add(player.UserId);

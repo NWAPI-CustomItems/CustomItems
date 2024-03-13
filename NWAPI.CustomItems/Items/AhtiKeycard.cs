@@ -1,21 +1,13 @@
-﻿using GameCore;
-using Interactables.Interobjects.DoorUtils;
+﻿using Interactables.Interobjects.DoorUtils;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Features;
 using NWAPI.CustomItems.API.Spawn;
-using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using YamlDotNet.Serialization;
-using static PlayerList;
 
 namespace NWAPI.CustomItems.Items
 {
@@ -111,7 +103,7 @@ namespace NWAPI.CustomItems.Items
 
             var doorName = GetDoorName(ev.Door);
 
-            if (!Check(ev.Player.CurrentItem) ||BlacklistedDoors.Contains(doorName))
+            if (!Check(ev.Player.CurrentItem) || BlacklistedDoors.Contains(doorName))
                 return true;
 
             if (HealthCosts.TryGetValue(doorName, out float healthCosts))

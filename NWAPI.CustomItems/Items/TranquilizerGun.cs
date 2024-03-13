@@ -103,6 +103,15 @@ namespace NWAPI.CustomItems.Items
         [Description("How often the plugin should reduce the resistance amount for players, in seconds.")]
         public float ResistanceFalloffDelay { get; set; } = 60f;
 
+        [Description("This text will be displayed in the ragdoll when someone is tranquilized")]
+        public string RagdollText { get; set; } = "Tranquilizado";
+
+        [Description("Its possible to tranquilize SCP-096 in rage mode ?")]
+        public bool CanTranquilizeScp096 { get; set; } = false;
+
+        [Description("When the SCP-096 its tranquilized its end is ragemode")]
+        public bool EndRage { get; set; } = false;
+
         /// <inheritdoc/>
         public override void SubscribeEvents()
         {
@@ -123,7 +132,7 @@ namespace NWAPI.CustomItems.Items
         // Fields
         private readonly Dictionary<Player, float> tranquilizedPlayers = new();
         private readonly List<Player> activeTranqs = new();
-        private CoroutineHandle resistenceReducer;
+        private readonly CoroutineHandle resistenceReducer;
 
         /// <inheritdoc />
         protected override void OnHurting(PlayerDamageEvent ev)
@@ -132,6 +141,7 @@ namespace NWAPI.CustomItems.Items
                 return;
 
             Log.Debug($"{ev.Player.LogName} is sleeping with {Name} a {ev.Target.LogName}", EntryPoint.Instance.Config.DebugMode);
+
             if (ev.DamageHandler is FirearmDamageHandler dmg)
             {
                 if (!FriendlyFire && ev.Target.Team == ev.Player.Team)
@@ -154,6 +164,10 @@ namespace NWAPI.CustomItems.Items
                     return;
                 }
             }
+
+            if (ev.Target.RoleBase is Scp096Role role && role.IsRageState(Scp096RageState.Enraged) && !CanTranquilizeScp096)
+                return;
+
 
             float duration = Duration;
 
@@ -196,10 +210,10 @@ namespace NWAPI.CustomItems.Items
             BasicRagdoll? ragdoll = null;
 
             if (player.Role != RoleTypeId.Scp106) // For some strange reason its spawns 2 ragdolls, i dont want to fixed... lazyyyy
-                ragdoll = RagdollExtensions.CreateAndSpawn(player.Role, player.DisplayNickname, "Tranquilizado", player.Position, player.ReferenceHub.PlayerCameraReference.rotation, player);
+                ragdoll = RagdollExtensions.CreateAndSpawn(player.Role, player.DisplayNickname, RagdollText, player.Position, player.ReferenceHub.PlayerCameraReference.rotation, player);
 
 
-            if (player.RoleBase is Scp096Role scp)
+            if (player.RoleBase is Scp096Role scp && EndRage)
                 scp.EndRage();
 
             try
