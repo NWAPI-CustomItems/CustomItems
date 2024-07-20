@@ -82,7 +82,8 @@ namespace NWAPI.CustomItems.Items
         [Description("The room when infected its lights will change color, if the color is equal to white (255, 255, 255) the color of the room will not change.")]
         public Color GasRoomColor { get; set; } = Color.green;
 
-
+        [Description("When the player explode this hint message will be send")]
+        public string ExplosionHint { get; set; } = "<color=red><b>BOOM</b></color>";
 
         /// <inheritdoc/>
         public override void SubscribeEvents()
@@ -113,12 +114,12 @@ namespace NWAPI.CustomItems.Items
 
             if (BoomerPlayers.Contains(ev.Player.UserId))
             {
-                if (ev.Player.Room is null)
-                    return;
+                ev.Player.ReceiveHint(InfectedHint, HintDuration);
 
-                if (ev.Player.Room.Name == RoomName.Outside)
+                if (ev.Player.Room is null || ev.Player.Room.Name == RoomName.Outside)
                 {
-                    // No posion on this room.
+                    
+                    // dont put poison on this room.
                     BoomerPlayers.Remove(ev.Player.UserId);
                     ExplodePlayer(ev.Player);
                 }
@@ -153,9 +154,9 @@ namespace NWAPI.CustomItems.Items
                 if (ev.Target.Room is null)
                     return;
 
-                if (ev.Target.Room.Name == RoomName.Outside)
+                if (ev.Player.Room is null || ev.Target.Room.Name == RoomName.Outside)
                 {
-                    // No posion on this room.
+                    // dont put poison on this room.
                     BoomerPlayers.Remove(ev.Target.UserId);
                     ExplodePlayer(ev.Target);
                 }
@@ -199,6 +200,7 @@ namespace NWAPI.CustomItems.Items
         {
             try
             {
+                player.ReceiveHint(ExplosionHint, HintDuration);
                 player.Explode();
             }
             catch (Exception e)

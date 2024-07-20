@@ -99,7 +99,7 @@ namespace NWAPI.CustomItems.Items
                 endRage = true;
 
                 role.EndRage();
-                player.EffectsManager.EnableEffect<Burned>(30);
+                player.EffectsManager.EnableEffect<Burned>(30).Intensity = 40;
             }
 
 

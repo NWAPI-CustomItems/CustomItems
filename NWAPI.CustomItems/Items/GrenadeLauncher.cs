@@ -294,6 +294,7 @@ namespace CustomItems.Items
 
             GrenadesSerials.Add(throwable.ItemSerial);
 
+            throwable.Owner = player.ReferenceHub;
             Log.Debug($"{player.LogName} is throwing a grenade from {Name}", EntryPoint.Instance.Config.DebugMode);
             player.ThrowItem(throwable, true);
         }

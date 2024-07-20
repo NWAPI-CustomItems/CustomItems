@@ -112,6 +112,15 @@ namespace NWAPI.CustomItems.Items
         [Description("When the SCP-096 its tranquilized its end is ragemode")]
         public bool EndRage { get; set; } = false;
 
+        [Description("When a player is tranquilized this message will be show")]
+        public string TranqWarning { get; set; } = "You has been sleep by {0}";
+
+        [Description("The duration of the warning in the screen of the player")]
+        public float HintDuration { get; set; } = 10f;
+
+        [Description("Prevent dropping the item of tranquilized targets if is in the same team")]
+        public bool PreventDropItemAllies { get; set; } = true;
+
         /// <inheritdoc/>
         public override void SubscribeEvents()
         {
@@ -119,6 +128,7 @@ namespace NWAPI.CustomItems.Items
 
             Instance ??= this;
             PluginAPI.Events.EventManager.RegisterEvents(Plugin.Instance, Instance);
+            resistenceReducer = Timing.RunCoroutine(ReduceResistances());
 
         }
 
@@ -127,17 +137,21 @@ namespace NWAPI.CustomItems.Items
         {
             base.UnsubscribeEvents();
             PluginAPI.Events.EventManager.UnregisterEvents(Plugin.Instance, Instance);
+            Timing.KillCoroutines(resistenceReducer);
         }
 
         // Fields
         private readonly Dictionary<Player, float> tranquilizedPlayers = new();
         private readonly List<Player> activeTranqs = new();
-        private readonly CoroutineHandle resistenceReducer;
+        private CoroutineHandle resistenceReducer;
 
         /// <inheritdoc />
         protected override void OnHurting(PlayerDamageEvent ev)
         {
             if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem) || ev.Target.Team == ev.Player.Team && !FriendlyFire)
+                return;
+
+            if (ModelType.IsFirearm() && ev.DamageHandler is not FirearmDamageHandler)
                 return;
 
             Log.Debug($"{ev.Player.LogName} is sleeping with {Name} a {ev.Target.LogName}", EntryPoint.Instance.Config.DebugMode);
@@ -181,7 +195,13 @@ namespace NWAPI.CustomItems.Items
             Log.Debug($"{Name}: Duration: {duration}", EntryPoint.Instance.Config.DebugMode);
 
             if (duration > 0f)
-                Timing.RunCoroutine(DoTranquilize(ev.Target, duration));
+            {
+                Timing.RunCoroutine(DoTranquilize(ev.Target, duration, ev.Player.Team));
+
+                var text = string.Format(TranqWarning, string.IsNullOrEmpty(ev.Player.DisplayNickname) ? ev.Player.Nickname : ev.Player.DisplayNickname);
+                ev.Target.ReceiveHint(text, HintDuration);
+                ev.Target.SendConsoleMessage($"\n{text}");
+            }
         }
 
         [PluginEvent]
@@ -189,9 +209,11 @@ namespace NWAPI.CustomItems.Items
         {
             tranquilizedPlayers.Clear();
             activeTranqs.Clear();
+            Timing.KillCoroutines(resistenceReducer);
+            resistenceReducer = Timing.RunCoroutine(ReduceResistances());
         }
 
-        private IEnumerator<float> DoTranquilize(Player player, float duration)
+        private IEnumerator<float> DoTranquilize(Player player, float duration, Team team)
         {
             Log.Debug($"{nameof(DoTranquilize)}: Tranquilizen {player.LogName} for the duration of {duration}", EntryPoint.Instance.Config.DebugMode);
 
@@ -204,10 +226,19 @@ namespace NWAPI.CustomItems.Items
             if (newHealth <= 0)
                 yield break;
 
-            if (player.CurrentItem != null)
-                player.DropItem(player.CurrentItem);
+            if (player.Team == team && PreventDropItemAllies)
+            {
+                Log.Debug($"{nameof(DoTranquilize)}: Player {player.LogName} is an ally and item dropping is prevented.", EntryPoint.Instance.Config.DebugMode);
+            }
+            else
+            {
+                if (player.CurrentItem != null)
+                    player.DropItem(player.CurrentItem);
+            }
 
             BasicRagdoll? ragdoll = null;
+
+            yield return Timing.WaitForSeconds(.1f);
 
             if (player.Role != RoleTypeId.Scp106) // For some strange reason its spawns 2 ragdolls, i dont want to fixed... lazyyyy
                 ragdoll = RagdollExtensions.CreateAndSpawn(player.Role, player.DisplayNickname, RagdollText, player.Position, player.ReferenceHub.PlayerCameraReference.rotation, player);
